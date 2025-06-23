@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DJINN & DJ ZIGGY | Interactive Portfolio</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Raleway:wght@300;400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        xintegrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+    <style>
+        /* CSS Variables for Theming */
+        :root {
+            /* Dark Theme (Default) */
+            --bg-primary: #050505;
+            --text-primary: #e5e5e5;
+            --text-secondary: #a0a0a0;
+            --header-bg: rgba(0, 0, 0, 0.7);
+
+            /* ZIGGY COLORS: Clinical Blue */
+            --ziggy-color-1: #007bff;
+            --ziggy-color-2: #00bfff;
+
+            /* DJINN COLORS: Candyfloss & Neon */
+            --djinn-accent: #fcabd9;
+            /* Candyfloss Pink */
+            --djinn-highlight: #ffc880;
+            /* Neon Cyan */
+
+            --card-bg: rgba(22, 22, 22, 0.5);
+            --card-border: rgba(255, 255, 255, 0.1);
+
+            --form-bg: #1a1a1a;
+            --input-bg: #2a2a2a;
+            --input-border: #444;
+            --footer-bg: #000;
+        }
+
+        .light-theme {
+            /* Light Theme */
+            --bg-primary: #f5f5f5;
+            --text-primary: #1a1a1a;
+            --text-secondary: #555;
+            --header-bg: rgba(255, 255, 255, 0.7);
+
+            --card-bg: rgba(255, 255, 255, 0.8);
+            --card-border: rgba(0, 0, 0, 0.1);
+
+            --form-bg: #e0e0e0;
+            --input-bg: #ffffff;
+            --input-border: #ccc;
+            --footer-bg: #f0f0f0;
+        }
+
+        body {
+            font-family: 'Raleway', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* --- Preloader --- */
+        #preloader {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--bg-primary);
+            z-index: 100;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.8s ease;
+        }
+        #preloader.fade-out {
+            opacity: 0;
+        }
+        .preloader-logo {
+            animation: pulse-logo 2s infinite ease-in-out;
+            font-size: 2.5rem;
+            font-weight: 900;
+            text-transform: uppercase;
+        }
+        @keyframes pulse-logo {
+            0%, 100% { opacity: 0.8; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.05); }
+        }
+
+        /* --- Header --- */
+        #header {
+            transform: translateY(-100%);
+            transition: transform 0.5s ease, background-color 0.3s ease;
+            background-color: var(--header-bg);
+        }
+
+        #header.is-visible {
+            transform: translateY(0);
+        }
+
+        .theme-toggle-btn {
+            background: none;
+            border: none;
+            color: var(--text-primary);
+            cursor: pointer;
+        }
+
+        /* --- Hero Section --- */
+        #hero {
+            position: relative;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .split {
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            background-size: cover;
+            background-position: center;
+            transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1);
+            display: flex;
+            align-items: center;
+        }
+
+        .split::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            transition: background 0.5s ease;
+        }
+
+        .split:hover::before {
+            background: rgba(0, 0, 0, 0.3);
+        }
+
+        #split-left {
+            left: 0;
+            background-image: url('D:/Users/DJINN/Downloads/Branding copy-62 (1).jpg');
+            clip-path: polygon(0 0, 50% 0, 45% 100%, 0% 100%);
+            justify-content: flex-start;
+            padding-left: 15vw;
+        }
+
+        #split-right {
+            right: 0;
+            background-image: url('D:/Users/DJINN/Downloads/Branding copy-64.png');
+            clip-path: polygon(50% 0, 100% 0, 100% 100%, 45% 100%);
+            justify-content: flex-end;
+            padding-right: 15vw;
+        }
+
+        #hero:hover #split-left {
+            clip-path: polygon(0 0, 70% 0, 65% 100%, 0% 100%);
+        }
+
+        #hero:hover #split-right {
+            clip-path: polygon(70% 0, 100% 0, 100% 100%, 65% 100%);
+        }
+
+        #hero:has(#split-right:hover) #split-left {
+            clip-path: polygon(0 0, 30% 0, 25% 100%, 0% 100%);
+        }
+
+        #hero:has(#split-right:hover) #split-right {
+            clip-path: polygon(30% 0, 100% 0, 100% 100%, 25% 100%);
+        }
+
+        .hero-title {
+            position: relative;
+            z-index: 10;
+            color: white;
+            font-size: clamp(3rem, 8vw, 6rem);
+            font-weight: 900;
+            text-transform: uppercase;
+            text-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+            transition: transform 0.5s ease;
+        }
+
+        .split:hover .hero-title {
+            transform: scale(1.1);
+        }
+
+        /* General Section & Card Styles */
+        .content-section {
+            opacity: 1;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            transition: opacity 1.2s ease, transform 1.2s ease, background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .js-loading .content-section {
+            opacity: 0;
+            transform: translateY(50px);
+        }
+
+        .content-section.is-visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .stagger-animation>* {
+            opacity: 0;
+            transform: translateY(30px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+        }
+
+        .section {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .parallax-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-attachment: fixed;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+        }
+
+        .themed-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--card-border);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .themed-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .about-image {
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
+            transition: transform 0.4s ease;
+        }
+        .about-image:hover {
+            transform: scale(1.03);
+        }
+
+        /* DJINN Theme */
+        #djinn {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        #djinn-parallax-bg {
+            --gradient-angle: 0deg;
+            background: linear-gradient(var(--gradient-angle), var(--djinn-accent), var(--djinn-highlight));
+            animation: rotate-gradient 15s infinite linear;
+            opacity: 0.8;
+        }
+
+        @keyframes rotate-gradient {
+            to {
+                --gradient-angle: 360deg;
+            }
+        }
+
+        /* ZIGGY Theme */
+        #ziggy {
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+        }
+        #ziggy-parallax-bg {
+            background: radial-gradient(circle, var(--ziggy-color-1) 0%, rgba(0, 0, 0, 0) 60%);
+            opacity: 0.2;
+        }
+        #ziggy .themed-card:hover {
+            border-color: var(--ziggy-color-1);
+            box-shadow: 0 0 15px rgba(0, 123, 255, 0.15);
+        }
+
+        /* Booking Section */
+        #booking {
+            background-color: var(--form-bg);
+            transition: background-color 0.3s ease;
+        }
+
+        .form-input {
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            color: var(--text-primary);
+            transition: background-color 0.3s, border-color 0.3s, color 0.3s ease;
+        }
+
+        /* Footer */
+        footer {
+            background-color: var(--footer-bg);
+            transition: background-color 0.3s ease;
+        }
+        .reduce-height {
+            height: 100px;
+            overflow: hidden;
+            transition: 1s ease height;
+        }
+
+    </style>
+</head>
+
+<body class="w-full">
+
+    <!-- Preloader -->
+    <div id="preloader">
+        <h1 class="preloader-logo">
+            DJ<span style="color: var(--djinn-accent);">INN</span> / <span style="color: var(--ziggy-color-1);">ZIGGY</span>
+        </h1>
+    </div>
+
+    <!-- Sticky Nav -->
+    <header id="header" class="backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
+        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+            <a href="#hero" class="text-xl font-bold uppercase tracking-wider">
+                DJ<span id="nav-djinn" class="transition-colors" style="color: var(--djinn-accent);">INN</span> / <span
+                    id="nav-ziggy" class="transition-colors" style="color: var(--ziggy-color-1);">ZIGGY</span>
+            </a>
+            <div class="flex items-center space-x-4">
+                <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
+                    <li><a href="#djinn" class="hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
+                    <li><a href="#ziggy" class="hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
+                    <li><a href="#mixes" class="hover:text-gray-400 transition-colors duration-300">Mixes</a></li>
+                </ul>
+                <button id="theme-toggle" class="theme-toggle-btn text-2xl">
+                    <i id="theme-icon-sun" class="fas fa-sun"></i>
+                    <i id="theme-icon-moon" class="fas fa-moon hidden"></i>
+                </button>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <main id="hero">
+        <div id="split-left" class="split">
+            <a href="#djinn" class="hero-title">DJINN</a>
+        </div>
+        <div id="split-right" class="split">
+            <a href="#ziggy" class="hero-title">ZIGGY</a>
+        </div>
+    </main>
+
+    <!-- DJINN Section -->
+    <section id="djinn" class="section py-20 md:py-32 content-section">
+        <div id="djinn-parallax-bg" class="parallax-bg"></div>
+        <div class="container mx-auto px-6 relative">
+            <div class="grid lg:grid-cols-2 gap-12 items-center stagger-animation">
+                <div class="lg:pr-8 text-left">
+                    <h2 class="text-5xl md:text-6xl font-black leading-tight">ABOUT <br><span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-orange-600">DJINN</span>
+                    </h2>
+                    <p class="text-secondary mt-6 leading-relaxed">Hey there! I'm DJINN, and I'm all about creating those unforgettable nights on the dance floor, the ones filled with pure energy and good vibes. My journey started during lockdown, spinning tunes on Twitch and building an amazing community. Now, I'm bringing that same energy to live events, and I've been lucky enough to play at some incredible places like Furcation and Insomnia Gaming Festival.
+
+                        My sets vary through house music, with a healthy dose of 00s and 90s throwbacks that'll take you right back. Oh, and I can't resist throwing in some trance, DnB, and those classic "diva power" anthems that just make everyone lose it.
+                        
+                        As a proud member of the LGBTQ+ community, it's super important to me that my sets are a space where everyone feels safe, included, and totally free to be themselves.</p>
+                     <div class="flex items-center space-x-5 mt-8">
+                         <a href="https://twitch.tv/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitch"></i></a>
+                         <a href="https://twitter.com/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitter"></i></a>
+                         <a href="https://instagram.com/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-instagram"></i></a>
+                         <a href="https://bsky.app/profile/djinnbanter.com" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fa-solid fa-cloud"></i></a>
+                         <a href="http://djinnbanter.com" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fas fa-globe"></i></a>
+                    </div>
+                </div>
+                <div class="w-full">
+                     <img src="D:\Users\DJINN\Downloads\Branding copy-62.png" alt="DJINN" class="about-image w-full h-full object-cover">
+                </div>
+            </div>
+             <div class="mt-20">
+                <h3 class="text-3xl font-bold text-center mb-8">Past Events</h3>
+                <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\Branding copy-60.png" alt="Furcation Logo" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\images.png" alt="Insomnia Logo" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\CeBCQSc9_400x400.png" alt="Club Night Logo" class="max-w-full max-h-full object-contain"></div>
+                     <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\images.jpg" alt="Festival Logo" class="max-w-full max-h-full object-contain"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- DJ ZIGGY Section -->
+    <section id="ziggy" class="section py-20 md:py-32 content-section">
+        <div id="ziggy-parallax-bg" class="parallax-bg"></div>
+        <div class="container mx-auto px-6 relative">
+            <div class="grid lg:grid-cols-2 gap-12 items-center stagger-animation">
+                <div class="w-full lg:order-1">
+                     <img src="D:\Users\DJINN\Downloads\A7402444.jpg" alt="ZIGGY" class="about-image w-full h-full object-cover">
+                </div>
+                <div class="lg:order-2 lg:pl-8 text-left">
+                    <h2 class="text-5xl md:text-6xl font-black leading-tight">ABOUT <br><span
+                            class="text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">ZIGGY</span>
+                    </h2>
+                    <p class="text-secondary mt-6 leading-relaxed">There are certain nights that call for a sound that's
+                        deeper, darker, and more intense. That's where you'll find ZIGGY. This is my personal project
+                        for the pup, furry, and kink communities I'm a part of. The music here is more underground—hard
+                        techno, hard dance, and DnB—and the sets are built for those specific, 'you had to be there'
+                        moments where the energy is just right.</p>
+                    <div class="flex items-center space-x-5 mt-8">
+                         <a href="#" class="text-2xl text-white-600 hover:text-blue-500 transition-colors flex items-center gap-2"><i class="fas fa-user-secret"></i><span class="text-base">@pup_ziggy</span></a>
+                     </div>
+                </div>
+            </div>
+             <div class="mt-20">
+                <h3 class="text-3xl font-bold text-center mb-8">Past Events</h3>
+                <div class="max-w-4xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\animalz.png" alt="Pup Night Logo" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\ldnfurs.png" alt="Kink Social Logo" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="D:\Users\DJINN\Documents\venues\images (1).png" alt="Furry Rave Logo" class="max-w-full max-h-full object-contain"></div>
+                     <div class="themed-card p-1 flex items-center justify-center aspect-square"><img src="https://placehold.co/150x80/1a1a1a/e5e5e5?text=coming soon..." alt="Warehouse Logo" class="max-w-full max-h-full object-contain"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mixes Section -->
+    <section id="mixes" class="py-20 md:py-32 content-section">
+        <div class="container mx-auto px-6 relative">
+             <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">Latest Mixes</h2>
+             <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto stagger-animation">
+                 <div>
+                     <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-200 to-orange-200">DJINN Set</h3>
+                     <div class="">
+                         <p class="text-secondary text-center"><iframe width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2Fgarage-shared-competition-mix-djinn%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
+                     </div>
+                 </div>
+                 <div>
+                     <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">ZIGGY Set</h3>
+                      <div class="">
+                         <p class="text-secondary text-center"><iframe width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
+                     </div>
+                 </div>
+             </div>
+             <div class="text-center mt-12 stagger-animation">
+                 <a href="https://www.mixcloud.com/your-profile/" target="_blank" class="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
+                    See More on Mixcloud
+                 </a>
+             </div>
+        </div>
+    </section>
+
+    <!-- Booking Section -->
+    <section id="booking" class="py-20 md:py-32 content-section">
+        <div class="container mx-auto px-6 text-center" style="height: 432px" id="booking-container">
+            <h2 class="text-4xl md:text-5xl font-black mb-4">Bookings</h2>
+            <p class="max-w-2xl mx-auto text-secondary mb-12" id="bookingtext">Fill in below and I will get back to you as soon as I can.
+            </p>
+            <form id="booking-form" class="max-w-xl mx-auto text-left space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input name="name" type="text" placeholder="Your Name" class="form-input p-3 w-full rounded-none">
+                    <input name="email" type="email" placeholder="Your Email"
+                        class="form-input p-3 w-full rounded-none">
+                </div>
+                <div>
+                    <textarea name="message" placeholder="Tell me about your event..." rows="5"
+                        class="form-input w-full p-3 rounded-none"></textarea>
+                </div>
+                <div class="text-center pt-4">
+                    <button type="submit" id="btnBookingSubmit"
+                        class="bg-gradient-to-r from-pink-500 to-blue-500 text-white font-bold text-lg py-4 px-16 rounded-full transition-transform duration-300 hover:scale-105">Send
+                        Inquiry</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <footer class="bg-black py-8">
+        <div class="container mx-auto px-6 text-center text-gray-500">
+            <p>&copy; <span id="year"></span> DJINN / ZIGGY. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            document.body.classList.add('js-loading');
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // --- Preloader ---
+            const preloader = document.getElementById('preloader');
+            if (preloader) {
+                window.addEventListener('load', () => {
+                    setTimeout(() => {
+                        preloader.classList.add('fade-out');
+                        setTimeout(() => {
+                            preloader.style.display = 'none';
+                        }, 800);
+                    }, 500);
+                });
+            }
+
+            // --- THEME TOGGLE LOGIC ---
+            const themeToggleBtn = document.getElementById('theme-toggle');
+            const sunIcon = document.getElementById('theme-icon-sun');
+            const moonIcon = document.getElementById('theme-icon-moon');
+
+            // Function to apply the theme
+            const applyTheme = (theme) => {
+                if (theme === 'light') {
+                    document.body.classList.add('light-theme');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    document.body.classList.remove('light-theme');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            };
+
+            // Check for saved theme in localStorage
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme) {
+                applyTheme(savedTheme);
+            }
+
+            // Event listener for the toggle button
+            themeToggleBtn.addEventListener('click', () => {
+                let currentTheme = 'dark';
+                if (document.body.classList.contains('light-theme')) {
+                    currentTheme = 'light';
+                }
+                const newTheme = currentTheme === 'light' ? 'dark' : 'light';
+                applyTheme(newTheme);
+                localStorage.setItem('theme', newTheme);
+            });
+
+
+            // --- Intersection Observer for Animations ---
+            const header = document.getElementById('header');
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('is-visible');
+
+                        const staggerChildren = entry.target.querySelectorAll('.stagger-animation');
+                        staggerChildren.forEach(staggerContainer => {
+                            const children = staggerContainer.querySelectorAll(':scope > *');
+                            children.forEach((child, index) => {
+                                setTimeout(() => {
+                                    child.style.opacity = '1';
+                                    child.style.transform = 'translateY(0)';
+                                }, (index + 1) * 150);
+                            });
+                        });
+                    }
+                });
+            }, { threshold: 0.1 });
+
+            document.querySelectorAll('.content-section').forEach(section => observer.observe(section));
+
+            // Sticky Header visibility
+            const heroObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    header.classList.toggle('is-visible', !entry.isIntersecting);
+                });
+            }, { threshold: 0.1 });
+
+            const hero = document.getElementById('hero');
+            if (hero) {
+                heroObserver.observe(hero);
+            }
+
+
+        });
+    </script>
+    <script type="text/javascript">
+        (function () {
+            // https://dashboard.emailjs.com/admin/account
+            emailjs.init({
+                publicKey: "IU-0-MlqyXF4M4vib",
+            });
+        })();
+    </script>
+    <script type="text/javascript">
+        window.onload = function () {
+
+            // Hide an element
+            var hide = function (elem) {
+                elem.style.display = 'none';
+            };
+
+            const bookingFormEl = document.getElementById('booking-form');
+            if(bookingFormEl){
+                bookingFormEl.addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    // these IDs from the previous steps
+                    emailjs.sendForm('default_service', 'template_qoknyvg', this)
+                        .then(() => {
+                            var bookingForm = document.getElementById('booking-form');
+                            hide(bookingForm);
+                            document.getElementById('bookingtext').innerText = 'Thanks for your inquiry, i\'ll be in touch!';
+                            document.getElementById('booking-container').classList.add('reduce-height');
+                            document.getElementById('booking-container').style.removeProperty('height');
+                            
+                        }, (error) => {
+                            console.log('FAILED...', error);
+                        });
+                });
+            }
+        }
+    </script>
+
+</body>
+
+</html>
