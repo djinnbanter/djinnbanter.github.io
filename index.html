@@ -32,6 +32,9 @@
             /* Candyfloss Pink */
             --djinn-highlight: #ffc880;
             /* Neon Cyan */
+            
+            /* BOOKINGS COLOR: Vibrant Purple */
+            --bookings-accent: #a855f7;
 
             --card-bg: rgba(22, 22, 22, 0.5);
             --card-border: rgba(255, 255, 255, 0.1);
@@ -110,6 +113,58 @@
             color: var(--text-primary);
             cursor: pointer;
         }
+
+        /* --- Active Nav Link Styles --- */
+        .nav-link {
+            position: relative;
+            transition: color 0.3s ease, text-shadow 0.3s ease;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 2px;
+            bottom: -4px;
+            left: 50%;
+            transform: translateX(-50%);
+            transition: width 0.3s ease;
+        }
+        
+        .nav-link.nav-active-djinn {
+            color: var(--djinn-accent) !important;
+            text-shadow: 0 0 8px var(--djinn-accent);
+        }
+        .nav-link.nav-active-djinn::after {
+            background-color: var(--djinn-accent);
+            width: 100%;
+        }
+
+        .nav-link.nav-active-ziggy {
+            color: var(--ziggy-color-1) !important;
+            text-shadow: 0 0 8px var(--ziggy-color-1);
+        }
+        .nav-link.nav-active-ziggy::after {
+            background-color: var(--ziggy-color-1);
+            width: 100%;
+        }
+
+        .nav-link.nav-active-mixes {
+            color: #ffffff !important;
+        }
+        .nav-link.nav-active-mixes::after {
+             background-color: #ffffff;
+            width: 100%;
+        }
+        
+        .nav-link.nav-active-bookings {
+            color: var(--bookings-accent) !important;
+            text-shadow: 0 0 8px var(--bookings-accent);
+        }
+        .nav-link.nav-active-bookings::after {
+            background-color: var(--bookings-accent);
+            width: 100%;
+        }
+
 
         /* --- Hero Section --- */
         #hero {
@@ -244,6 +299,14 @@
             transform: translateY(-5px);
         }
         
+        .themed-card img {
+            filter: grayscale(100%);
+            transition: filter 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .themed-card:hover img {
+            filter: grayscale(0%);
+        }
+        
         .about-image {
             box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
             transition: transform 0.4s ease;
@@ -302,12 +365,6 @@
             background-color: var(--footer-bg);
             transition: background-color 0.3s ease;
         }
-        .reduce-height {
-            height: 100px;
-            overflow: hidden;
-            transition: 1s ease height;
-        }
-
     </style>
 </head>
 
@@ -329,9 +386,10 @@
             </a>
             <div class="flex items-center space-x-4">
                 <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
-                    <li><a href="#djinn" class="hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
-                    <li><a href="#ziggy" class="hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
-                    <li><a href="#mixes" class="hover:text-gray-400 transition-colors duration-300">Mixes</a></li>
+                    <li><a href="#djinn" class="nav-link hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
+                    <li><a href="#ziggy" class="nav-link hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
+                    <li><a href="#mixes" class="nav-link hover:text-gray-400 transition-colors duration-300">Mixes</a></li>
+                    <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
                 </ul>
                 <button id="theme-toggle" class="theme-toggle-btn text-2xl">
                     <i id="theme-icon-sun" class="fas fa-sun"></i>
@@ -366,11 +424,10 @@
                         
                         As a proud member of the LGBTQ+ community, it's super important to me that my sets are a space where everyone feels safe, included, and totally free to be themselves.</p>
                      <div class="flex items-center space-x-5 mt-8">
-                         <a href="https://twitch.tv/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitch"></i></a>
-                         <a href="https://twitter.com/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitter"></i></a>
-                         <a href="https://instagram.com/djinnbanter" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-instagram"></i></a>
-                         <a href="https://bsky.app/profile/djinnbanter.com" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fa-solid fa-cloud"></i></a>
-                         <a href="http://djinnbanter.com" target="_blank" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fas fa-globe"></i></a>
+                         <a href="https://twitch.tv/djinnbanter" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitch"></i></a>
+                         <a href="https://twitter.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-twitter"></i></a>
+                         <a href="https://instagram.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fab fa-instagram"></i></a>
+                         <a href="https://bsky.app/profile/djinnbanter.com" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-400 hover:text-pink-400 transition-colors"><i class="fa-solid fa-cloud"></i></a>
                     </div>
                 </div>
                 <div class="w-full">
@@ -431,18 +488,18 @@
                  <div>
                      <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-200 to-orange-200">DJINN</h3>
                      <div class="">
-                         <p class="text-secondary text-center"><iframe width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2Fgarage-shared-competition-mix-djinn%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
+                         <p class="text-secondary text-center"><iframe title="DJINN Mix" width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2Fgarage-shared-competition-mix-djinn%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
                      </div>
                  </div>
                  <div>
                      <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">ZIGGY</h3>
                       <div class="">
-                         <p class="text-secondary text-center"><iframe width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
+                         <p class="text-secondary text-center"><iframe title="ZIGGY Mix" width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
                      </div>
                  </div>
              </div>
              <div class="text-center mt-12 stagger-animation">
-                 <a href="https://www.mixcloud.com/djinnbanter/" target="_blank" class="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
+                 <a href="https://www.mixcloud.com/djinnbanter/" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
                     See More on Mixcloud
                  </a>
              </div>
@@ -451,11 +508,11 @@
 
     <!-- Booking Section -->
     <section id="booking" class="py-20 md:py-32 content-section">
-        <div class="container mx-auto px-6 text-center" style="height: 432px" id="booking-container">
-            <h2 class="text-4xl md:text-5xl font-black mb-4">Bookings</h2>
-            <p class="max-w-2xl mx-auto text-secondary mb-12" id="bookingtext">Fill in below and I will get back to you as soon as I can.
+        <div id="booking-container" class="container mx-auto px-6 text-center flex flex-col justify-center items-center min-h-[432px]">
+            <h2 id="booking-title" class="text-4xl md:text-5xl font-black mb-4 transition-opacity duration-500">Bookings</h2>
+            <p id="booking-text" class="max-w-2xl mx-auto text-secondary mb-12 transition-opacity duration-500">Fill in below and I will get back to you as soon as I can.
             </p>
-            <form id="booking-form" class="max-w-xl mx-auto text-left space-y-6">
+            <form id="booking-form" class="max-w-xl mx-auto text-left space-y-6 transition-opacity duration-500">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <input name="name" type="text" placeholder="Your Name" class="form-input p-3 w-full rounded-none">
                     <input name="email" type="email" placeholder="Your Email"
@@ -534,7 +591,7 @@
             });
 
 
-            // --- Intersection Observer for Animations ---
+            // --- Intersection Observer for CONTENT FADE-IN ANIMATIONS ---
             const header = document.getElementById('header');
             const observer = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
@@ -569,6 +626,56 @@
                 heroObserver.observe(hero);
             }
 
+            // --- ROBUST SCROLL-BASED NAVIGATION HIGHLIGHTING ---
+            const navLinks = document.querySelectorAll('.nav-link');
+            const sections = Array.from(document.querySelectorAll('.content-section[id]'));
+
+            function throttle(func, limit) {
+                let inThrottle;
+                return function() {
+                    const args = arguments;
+                    const context = this;
+                    if (!inThrottle) {
+                        func.apply(context, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                };
+            }
+
+            function updateActiveNav() {
+                const scrollPosition = window.pageYOffset;
+                let currentSectionId = '';
+
+                // Find the current section based on scroll position
+                sections.forEach(section => {
+                    const sectionTop = section.offsetTop - 150; // Offset for sticky header
+                    const sectionHeight = section.offsetHeight;
+                    if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
+                        currentSectionId = section.id;
+                    }
+                });
+
+                // **BUG FIX**: Handle the case where the user scrolls to the absolute bottom of the page
+                if (window.innerHeight + scrollPosition >= document.body.offsetHeight - 2) {
+                    currentSectionId = sections[sections.length - 1].id; // Force active to last section
+                }
+
+                // Apply active classes based on the found section
+                navLinks.forEach(link => {
+                    const linkHref = link.getAttribute('href').substring(1);
+                    const isActive = linkHref === currentSectionId;
+
+                    link.classList.toggle('nav-active-djinn', isActive && linkHref === 'djinn');
+                    link.classList.toggle('nav-active-ziggy', isActive && linkHref === 'ziggy');
+                    link.classList.toggle('nav-active-mixes', isActive && linkHref === 'mixes');
+                    link.classList.toggle('nav-active-bookings', isActive && linkHref === 'booking');
+                });
+            }
+
+            window.addEventListener('scroll', throttle(updateActiveNav, 100));
+            window.addEventListener('resize', throttle(updateActiveNav, 100)); // Also update on resize
+            updateActiveNav(); // Initial check on page load
 
         });
     </script>
@@ -582,27 +689,46 @@
     </script>
     <script type="text/javascript">
         window.onload = function () {
-
-            // Hide an element
-            var hide = function (elem) {
-                elem.style.display = 'none';
-            };
-
             const bookingFormEl = document.getElementById('booking-form');
             if(bookingFormEl){
                 bookingFormEl.addEventListener('submit', function (event) {
                     event.preventDefault();
-                    // these IDs from the previous steps
+                    
+                    const submitButton = document.getElementById('btnBookingSubmit');
+                    submitButton.disabled = true;
+                    submitButton.innerText = 'Sending...';
+
                     emailjs.sendForm('default_service', 'template_qoknyvg', this)
                         .then(() => {
-                            var bookingForm = document.getElementById('booking-form');
-                            hide(bookingForm);
-                            document.getElementById('bookingtext').innerText = 'Thanks for your inquiry, i\'ll be in touch!';
-                            document.getElementById('booking-container').classList.add('reduce-height');
-                            document.getElementById('booking-container').style.removeProperty('height');
+                            const bookingTitle = document.getElementById('booking-title');
+                            const bookingText = document.getElementById('booking-text');
+                            const bookingForm = document.getElementById('booking-form');
+                            
+                            // Start fade out
+                            bookingTitle.classList.add('opacity-0');
+                            bookingText.classList.add('opacity-0');
+                            bookingForm.classList.add('opacity-0');
+
+                            // Wait for fade out to complete
+                            setTimeout(() => {
+                                // Hide form completely
+                                bookingForm.style.display = 'none';
+
+                                // Change the text content
+                                bookingTitle.innerText = 'Thank You!';
+                                bookingText.innerText = 'Your inquiry has been sent. I\'ll be in touch soon!';
+                                
+                                // Fade the new text back in
+                                bookingTitle.classList.remove('opacity-0');
+                                bookingText.classList.remove('opacity-0');
+
+                            }, 500); // This duration matches the CSS transition duration
                             
                         }, (error) => {
+                            submitButton.disabled = false;
+                            submitButton.innerText = 'Send Inquiry';
                             console.log('FAILED...', error);
+                            alert('Oops! Something went wrong. Please try again.');
                         });
                 });
             }
