@@ -754,9 +754,12 @@
             </p>
             <form id="booking-form" class="max-w-xl mx-auto text-left space-y-6 transition-opacity duration-500">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <input name="name" type="text" placeholder="Your Name" class="form-input p-3 w-full rounded-none">
-                    <input name="email" type="email" placeholder="Your Email"
-                        class="form-input p-3 w-full rounded-none">
+                    <input name="name" type="text" placeholder="Your Name" class="form-input p-3 w-full rounded-none" required>
+                    <input name="email" type="email" placeholder="Your Email" class="form-input p-3 w-full rounded-none" required>
+                </div>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <input name="event_name" type="text" placeholder="Organisation/Event Name" class="form-input p-3 w-full rounded-none">
+                    <input name="phone" type="tel" placeholder="Phone Number" class="form-input p-3 w-full rounded-none">
                 </div>
                 <div>
                     <textarea name="message" placeholder="Tell me about your event..." rows="5"
