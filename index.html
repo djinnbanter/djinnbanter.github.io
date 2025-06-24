@@ -8,6 +8,18 @@
 
     <!-- 
     ================================================================================
+    FAVICON
+    Replace these href paths with the paths to your actual favicon files.
+    You can use an online generator to create these from a logo image.
+    ================================================================================ 
+    -->
+    <link rel="icon" href="/favicon.ico" sizes="any">
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml">
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+
+
+    <!-- 
+    ================================================================================
     SEO & SOCIAL MEDIA TAGS
     It's highly recommended you customize the 'content' of these tags for your live site.
     ================================================================================ 
@@ -58,6 +70,15 @@
             --djinn-highlight: #ffc880;
             /* Neon Cyan */
             
+            /* MIXES COLOR: Vibrant Orange */
+            --mixes-accent: #f97316;
+            
+            /* GALLERY COLOR: Electric Teal */
+            --gallery-accent: #2dd4bf;
+
+            /* GIGS COLOR: Lime Green */
+            --gigs-accent: #84cc16;
+
             /* BOOKINGS COLOR: Vibrant Purple */
             --bookings-accent: #a855f7;
 
@@ -174,10 +195,29 @@
         }
 
         .nav-link.nav-active-mixes {
-            color: #ffffff !important;
+            color: var(--mixes-accent) !important;
+            text-shadow: 0 0 8px var(--mixes-accent);
         }
         .nav-link.nav-active-mixes::after {
-             background-color: #ffffff;
+             background-color: var(--mixes-accent);
+            width: 100%;
+        }
+
+        .nav-link.nav-active-gallery {
+            color: var(--gallery-accent) !important;
+            text-shadow: 0 0 8px var(--gallery-accent);
+        }
+        .nav-link.nav-active-gallery::after {
+            background-color: var(--gallery-accent);
+            width: 100%;
+        }
+
+        .nav-link.nav-active-gigs {
+            color: var(--gigs-accent) !important;
+            text-shadow: 0 0 8px var(--gigs-accent);
+        }
+        .nav-link.nav-active-gigs::after {
+            background-color: var(--gigs-accent);
             width: 100%;
         }
         
@@ -196,6 +236,28 @@
             position: relative;
             height: 100vh;
             overflow: hidden;
+        }
+        
+        .scroll-down-indicator {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            animation: bounce 2s infinite;
+            z-index: 20;
+        }
+        
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% {
+                transform: translateX(-50%) translateY(0);
+            }
+            40% {
+                transform: translateX(-50%) translateY(-20px);
+            }
+            60% {
+                transform: translateX(-50%) translateY(-10px);
+            }
         }
 
         .split {
@@ -340,6 +402,24 @@
             transform: scale(1.03);
         }
 
+        /* --- Gallery Grid --- */
+        .gallery-item {
+            border-radius: 1rem;
+            overflow: hidden;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            filter: brightness(0.8);
+            cursor: pointer;
+        }
+        .gallery-item:hover {
+            transform: scale(1.05);
+            filter: brightness(1);
+        }
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
         /* DJINN Theme */
         #djinn {
             background-color: var(--bg-primary);
@@ -384,6 +464,12 @@
             color: var(--text-primary);
             transition: background-color 0.3s, border-color 0.3s, color 0.3s ease;
         }
+        .btn-glow-inquiry:hover {
+            box-shadow: 0 0 15px var(--djinn-accent), 0 0 25px var(--ziggy-color-1);
+        }
+        .btn-glow-press:hover {
+            box-shadow: 0 0 15px var(--text-secondary);
+        }
 
         /* Footer */
         footer {
@@ -395,14 +481,12 @@
 
 <body class="w-full">
 
-    <!-- Preloader -->
     <div id="preloader">
         <h1 class="preloader-logo">
             DJ<span style="color: var(--djinn-accent);">INN</span> / <span style="color: var(--ziggy-color-1);">ZIGGY</span>
         </h1>
     </div>
 
-    <!-- Sticky Nav -->
     <header id="header" class="backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
         <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
             <a href="#hero" class="text-xl font-bold uppercase tracking-wider">
@@ -413,10 +497,12 @@
                 <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
                     <li><a href="#djinn" class="nav-link hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
                     <li><a href="#ziggy" class="nav-link hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
-                    <li><a href="#mixes" class="nav-link hover:text-gray-400 transition-colors duration-300">Mixes</a></li>
+                    <li><a href="#mixes" class="nav-link hover:text-orange-500 transition-colors duration-300">Mixes</a></li>
+                    <li><a href="#gallery" class="nav-link hover:text-teal-400 transition-colors duration-300">Gallery</a></li>
+                    <li><a href="#gigs" class="nav-link hover:text-lime-400 transition-colors duration-300">Gigs</a></li>
                     <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
                 </ul>
-                <button id="theme-toggle" class="theme-toggle-btn text-2xl">
+                <button id="theme-toggle" class="theme-toggle-btn text-2xl" aria-label="Toggle color theme">
                     <i id="theme-icon-sun" class="fas fa-sun"></i>
                     <i id="theme-icon-moon" class="fas fa-moon hidden"></i>
                 </button>
@@ -424,7 +510,6 @@
         </nav>
     </header>
 
-    <!-- Hero Section -->
     <main id="hero">
         <div id="split-left" class="split">
             <a href="#djinn" class="hero-title">DJINN</a>
@@ -432,9 +517,11 @@
         <div id="split-right" class="split">
             <a href="#ziggy" class="hero-title">ZIGGY</a>
         </div>
+        <div class="scroll-down-indicator text-2xl">
+            <i class="fas fa-chevron-down"></i>
+        </div>
     </main>
 
-    <!-- DJINN Section -->
     <section id="djinn" class="section py-20 md:py-32 content-section">
         <div id="djinn-parallax-bg" class="parallax-bg"></div>
         <div class="container mx-auto px-6 relative">
@@ -471,7 +558,6 @@
         </div>
     </section>
 
-    <!-- DJ ZIGGY Section -->
     <section id="ziggy" class="section py-20 md:py-32 content-section">
         <div id="ziggy-parallax-bg" class="parallax-bg"></div>
         <div class="container mx-auto px-6 relative">
@@ -489,7 +575,7 @@
                         techno, hard dance, and DnB—and the sets are built for those specific, 'you had to be there'
                         moments where the energy is just right.</p>
                     <div class="flex items-center space-x-5 mt-8">
-                         <a href="#" class="text-2xl text-white-600 hover:text-blue-500 transition-colors flex items-center gap-2"><i class="fas fa-user-secret"></i><span class="text-base">@pup_ziggy</span></a>
+                         <a href="#" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-600 hover:text-blue-500 transition-colors flex items-center gap-2"><i class="fas fa-user-secret"></i><span class="text-base">@pup_ziggy</span></a>
                      </div>
                 </div>
             </div>
@@ -505,7 +591,6 @@
         </div>
     </section>
 
-    <!-- Mixes Section -->
     <section id="mixes" class="py-20 md:py-32 content-section">
         <div class="container mx-auto px-6 relative">
              <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">Latest Mixes</h2>
@@ -530,8 +615,52 @@
              </div>
         </div>
     </section>
+    
+    <section id="gallery" class="py-20 md:py-32 content-section">
+        <div class="container mx-auto px-6 relative">
+             <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">Gallery</h2>
+             <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/fcabd9/050505?text=DJINN+Live" loading="lazy" alt="DJINN playing live"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/007bff/ffffff?text=ZIGGY+Live" loading="lazy" alt="ZIGGY playing live"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/f97316/ffffff?text=Event+Photo" loading="lazy" alt="Photo from an event"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/84cc16/050505?text=Crowd+Shot" loading="lazy" alt="Photo of the crowd"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/a855f7/ffffff?text=Vibes" loading="lazy" alt="Atmospheric photo from a gig"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="https://placehold.co/400x600/e5e5e5/050505?text=Another+Pic" loading="lazy" alt="Another live photo"></div>
+            </div>
+        </div>
+    </section>
 
-    <!-- Booking Section -->
+    <section id="gigs" class="py-20 md:py-32 content-section border-t border-b border-white/10">
+        <div class="container mx-auto px-6 relative">
+             <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">Upcoming Gigs</h2>
+             <div class="max-w-3xl mx-auto space-y-8 stagger-animation">
+                
+                <div class="themed-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 transition hover:border-djinn-accent/50">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xl font-bold">Name of Event</p>
+                        <p class="text-secondary">Venue, City, Country</p>
+                    </div>
+                    <div class="font-black text-3xl text-[var(--djinn-accent)] shrink-0 text-center">
+                        <span class="block text-sm font-bold uppercase text-secondary tracking-widest">MON</span>
+                        01
+                    </div>
+                </div>
+                
+                 <div class="themed-card p-6 flex flex-col sm:flex-row items-center justify-between gap-4 transition hover:border-ziggy-color-1/50">
+                    <div class="text-center sm:text-left">
+                        <p class="text-xl font-bold">Another Cool Event</p>
+                        <p class="text-secondary">A Different Place, City, Country</p>
+                    </div>
+                     <div class="font-black text-3xl text-[var(--ziggy-color-1)] shrink-0 text-center">
+                        <span class="block text-sm font-bold uppercase text-secondary tracking-widest">TUE</span>
+                        02
+                    </div>
+                </div>
+                
+             </div>
+        </div>
+    </section>
+
     <section id="booking" class="py-20 md:py-32 content-section">
         <div id="booking-container" class="container mx-auto px-6 text-center flex flex-col justify-center items-center min-h-[432px]">
             <h2 id="booking-title" class="text-4xl md:text-5xl font-black mb-4 transition-opacity duration-500">Bookings</h2>
@@ -549,10 +678,15 @@
                 </div>
                 <div class="text-center pt-4">
                     <button type="submit" id="btnBookingSubmit"
-                        class="bg-gradient-to-r from-pink-500 to-blue-500 text-white font-bold text-lg py-4 px-16 rounded-full transition-transform duration-300 hover:scale-105">Send
+                        class="btn-glow-inquiry bg-gradient-to-r from-pink-500 to-blue-500 text-white font-bold text-lg py-4 px-16 rounded-full transition-all duration-300 hover:scale-105">Send
                         Inquiry</button>
                 </div>
             </form>
+            <div id="booking-confirmation" class="mt-8">
+                 <a href="#" id="press-kit-link" class="btn-glow-press inline-block bg-transparent border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
+                    <i class="fas fa-download mr-2"></i> Download Press Kit
+                 </a>
+            </div>
         </div>
     </section>
 
@@ -685,7 +819,7 @@
                 if (window.innerHeight + scrollPosition >= document.body.offsetHeight - 2) {
                     currentSectionId = sections[sections.length - 1].id; // Force active to last section
                 }
-
+                
                 // Apply active classes based on the found section
                 navLinks.forEach(link => {
                     const linkHref = link.getAttribute('href').substring(1);
@@ -694,6 +828,8 @@
                     link.classList.toggle('nav-active-djinn', isActive && linkHref === 'djinn');
                     link.classList.toggle('nav-active-ziggy', isActive && linkHref === 'ziggy');
                     link.classList.toggle('nav-active-mixes', isActive && linkHref === 'mixes');
+                    link.classList.toggle('nav-active-gallery', isActive && linkHref === 'gallery');
+                    link.classList.toggle('nav-active-gigs', isActive && linkHref === 'gigs');
                     link.classList.toggle('nav-active-bookings', isActive && linkHref === 'booking');
                 });
             }
@@ -720,6 +856,7 @@
                     event.preventDefault();
                     
                     const submitButton = document.getElementById('btnBookingSubmit');
+                    const pressKitButton = document.getElementById('press-kit-link');
                     submitButton.disabled = true;
                     submitButton.innerText = 'Sending...';
 
@@ -733,11 +870,17 @@
                             bookingTitle.classList.add('opacity-0');
                             bookingText.classList.add('opacity-0');
                             bookingForm.classList.add('opacity-0');
+                            if(pressKitButton) {
+                                pressKitButton.parentElement.classList.add('opacity-0');
+                            }
 
                             // Wait for fade out to complete
                             setTimeout(() => {
                                 // Hide form completely
                                 bookingForm.style.display = 'none';
+                                 if(pressKitButton) {
+                                    pressKitButton.parentElement.style.display = 'none';
+                                }
 
                                 // Change the text content
                                 bookingTitle.innerText = 'Thank You!';
