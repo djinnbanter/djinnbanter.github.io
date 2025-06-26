@@ -461,6 +461,88 @@
             box-shadow: 0 0 15px rgba(0, 123, 255, 0.15);
         }
 
+        /* --- Custom Audio Player --- */
+        .custom-audio-player {
+            position: relative;
+            border-radius: 1rem;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            height: 280px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .player-overlay {
+            position: absolute;
+            inset: 0;
+            background-color: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+        }
+
+        .player-content {
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .mix-title {
+            font-weight: 700;
+            font-size: 1.125rem;
+            text-align: center;
+            margin-bottom: 1rem;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.8);
+        }
+        .play-pause-btn {
+            background: none;
+            border: 2px solid var(--text-primary);
+            color: var(--text-primary);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 1rem;
+        }
+        .play-pause-btn:hover {
+            transform: scale(1.1);
+        }
+        #player-djinn .play-pause-btn { border-color: var(--djinn-accent); color: var(--djinn-accent); }
+        #player-djinn .play-pause-btn:hover { background-color: var(--djinn-accent); color: black;}
+        #player-ziggy .play-pause-btn { border-color: var(--ziggy-color-1); color: var(--ziggy-color-1); }
+        #player-ziggy .play-pause-btn:hover { background-color: var(--ziggy-color-1); color: white;}
+
+        .progress-bar-container {
+            width: 100%;
+            height: 8px;
+            background-color: rgba(255,255,255,0.2);
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .progress-bar {
+            width: 0;
+            height: 100%;
+            border-radius: 4px;
+        }
+        #player-djinn .progress-bar { background-color: var(--djinn-accent); }
+        #player-ziggy .progress-bar { background-color: var(--ziggy-color-1); }
+
+        .time-display {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+
         /* Booking Section */
         #booking {
             background-color: var(--form-bg);
@@ -624,18 +706,50 @@
         <div class="container mx-auto px-6 relative">
              <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">LATEST MIXES</h2>
              <div class="grid md:grid-cols-2 gap-12 max-w-6xl mx-auto stagger-animation">
-                 <div>
-                     <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-200 to-orange-200">DJINN</h3>
-                     <div class="">
-                         <p class="text-secondary text-center"><iframe title="DJINN Mix" width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2Fgarage-shared-competition-mix-djinn%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
-                     </div>
-                 </div>
-                 <div>
-                     <h3 class="text-2xl font-bold mb-4 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">ZIGGY</h3>
-                      <div class="">
-                         <p class="text-secondary text-center"><iframe title="ZIGGY Mix" width="100%" height="120" src="https://player-widget.mixcloud.com/widget/iframe/?hide_cover=1&feed=%2Fdjinnbanter%2F" frameborder="0" allow="encrypted-media; fullscreen; autoplay; idle-detection; speaker-selection; web-share;" ></iframe></p>
-                     </div>
-                 </div>
+                <!-- DJINN Player -->
+                <div id="player-djinn" class="custom-audio-player" 
+                     data-audio-src="https://stream.mixcloud.stream/secure/c/m4a/64/9/c/6/b/8b1f-bbee-455f-a75f-435f46196ad7.m4a?sig=n6Td2fYhvOEO9LV2TDvBUg" 
+                     data-artwork-url="https://thumbnailer.mixcloud.com/unsafe/290x290/extaudio/f/d/9/a/b361-c0f8-4ebf-a3df-0abb0ce80524" 
+                     data-title="Garage Shared Competition Mix">
+                    <div class="player-overlay"></div>
+                    <div class="player-content">
+                        <h3 class="text-2xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-pink-200 to-orange-200">DJINN</h3>
+                        <p class="mix-title"></p>
+                        <button class="play-pause-btn"><i class="fas fa-play"></i></button>
+                        <div class="w-full">
+                           <div class="progress-bar-container">
+                               <div class="progress-bar"></div>
+                           </div>
+                           <div class="flex justify-between text-xs mt-1">
+                               <span class="time-display current-time">0:00</span>
+                               <span class="time-display total-time">0:00</span>
+                           </div>
+                        </div>
+                    </div>
+                    <audio class="audio-element hidden" preload="metadata"></audio>
+                </div>
+                <!-- ZIGGY Player -->
+                <div id="player-ziggy" class="custom-audio-player"
+                     data-audio-src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3" 
+                     data-artwork-url="https://stream.mixcloud.stream/secure/c/m4a/64/a/5/2/d/5988-7b26-4edb-8767-b6eea7e076e4.m4a?sig=S6pKo3TwhuL87pgUTNkOcw" 
+                     data-title="ZIGGY LIVE @ ANIMALZ APRIL 2025">
+                     <div class="player-overlay"></div>
+                     <div class="player-content">
+                        <h3 class="text-2xl font-bold mb-2 text-center text-transparent bg-clip-text bg-gradient-to-r from-blue-500 to-cyan-400">ZIGGY</h3>
+                        <p class="mix-title"></p>
+                        <button class="play-pause-btn"><i class="fas fa-play"></i></button>
+                        <div class="w-full">
+                           <div class="progress-bar-container">
+                               <div class="progress-bar"></div>
+                           </div>
+                           <div class="flex justify-between text-xs mt-1">
+                               <span class="time-display current-time">0:00</span>
+                               <span class="time-display total-time">0:00</span>
+                           </div>
+                        </div>
+                    </div>
+                    <audio class="audio-element hidden" preload="metadata"></audio>
+                </div>
              </div>
              <div class="text-center mt-12 stagger-animation">
                  <a href="https://www.mixcloud.com/djinnbanter/" target="_blank" rel="noopener noreferrer" class="inline-block bg-gray-700 hover:bg-gray-600 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
@@ -928,6 +1042,74 @@
 
             document.querySelectorAll('.content-section').forEach(section => contentObserver.observe(section));
             
+             // --- Custom Audio Player Logic ---
+            document.querySelectorAll('.custom-audio-player').forEach(player => {
+                const audio = player.querySelector('.audio-element');
+                const playPauseBtn = player.querySelector('.play-pause-btn');
+                const playIcon = playPauseBtn.querySelector('i');
+                const titleEl = player.querySelector('.mix-title');
+                const progressBar = player.querySelector('.progress-bar');
+                const progressBarContainer = player.querySelector('.progress-bar-container');
+                const currentTimeDisplay = player.querySelector('.current-time');
+                const totalTimeDisplay = player.querySelector('.total-time');
+
+                // Load data from attributes
+                audio.src = player.dataset.audioSrc;
+                player.style.backgroundImage = `url('${player.dataset.artworkUrl}')`;
+                titleEl.textContent = player.dataset.title;
+                
+                const togglePlay = () => {
+                    if (audio.paused) {
+                        // Pause all other players
+                        document.querySelectorAll('.audio-element').forEach(otherAudio => {
+                            if (otherAudio !== audio) {
+                                otherAudio.pause();
+                            }
+                        });
+                        audio.play();
+                    } else {
+                        audio.pause();
+                    }
+                };
+                
+                playPauseBtn.addEventListener('click', togglePlay);
+
+                audio.addEventListener('play', () => {
+                    playIcon.classList.replace('fa-play', 'fa-pause');
+                });
+
+                audio.addEventListener('pause', () => {
+                    playIcon.classList.replace('fa-pause', 'fa-play');
+                });
+
+                audio.addEventListener('timeupdate', () => {
+                    const { currentTime, duration } = audio;
+                    if (duration) {
+                        const progressPercent = (currentTime / duration) * 100;
+                        progressBar.style.width = `${progressPercent}%`;
+                        currentTimeDisplay.textContent = formatTime(currentTime);
+                    }
+                });
+
+                audio.addEventListener('loadedmetadata', () => {
+                    totalTimeDisplay.textContent = formatTime(audio.duration);
+                });
+
+                progressBarContainer.addEventListener('click', (e) => {
+                    const width = progressBarContainer.clientWidth;
+                    const clickX = e.offsetX;
+                    const duration = audio.duration;
+                    audio.currentTime = (clickX / width) * duration;
+                });
+
+                 function formatTime(seconds) {
+                    const minutes = Math.floor(seconds / 60);
+                    const secs = Math.floor(seconds % 60);
+                    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+                }
+            });
+
+
             // --- ROBUST SCROLL-BASED NAVIGATION HIGHLIGHTING ---
             const navLinks = document.querySelectorAll('.nav-link');
             const sections = Array.from(document.querySelectorAll('.content-section[id]'));
@@ -949,25 +1131,21 @@
                 const scrollPosition = window.pageYOffset;
                 let currentSectionId = '';
 
-                // Find the current section based on scroll position
                 sections.forEach(section => {
-                    const sectionTop = section.offsetTop - 150; // Offset for sticky header
+                    const sectionTop = section.offsetTop - 150;
                     const sectionHeight = section.offsetHeight;
                     if (scrollPosition >= sectionTop && scrollPosition < sectionTop + sectionHeight) {
                         currentSectionId = section.id;
                     }
                 });
 
-                // **BUG FIX**: Handle the case where the user scrolls to the absolute bottom of the page
                 if (window.innerHeight + scrollPosition >= document.body.offsetHeight - 2) {
-                    currentSectionId = sections[sections.length - 1].id; // Force active to last section
+                    currentSectionId = sections[sections.length - 1].id;
                 }
                 
-                // Apply active classes based on the found section
                 navLinks.forEach(link => {
                     const linkHref = link.getAttribute('href').substring(1);
                     const isActive = linkHref === currentSectionId;
-
                     link.classList.toggle('nav-active-djinn', isActive && linkHref === 'djinn');
                     link.classList.toggle('nav-active-ziggy', isActive && linkHref === 'ziggy');
                     link.classList.toggle('nav-active-mixes', isActive && linkHref === 'mixes');
@@ -978,8 +1156,8 @@
             }
 
             window.addEventListener('scroll', throttle(updateActiveNav, 100));
-            window.addEventListener('resize', throttle(updateActiveNav, 100)); // Also update on resize
-            updateActiveNav(); // Initial check on page load
+            window.addEventListener('resize', throttle(updateActiveNav, 100));
+            updateActiveNav();
 
         });
     </script>
@@ -1009,7 +1187,6 @@
                             const bookingText = document.getElementById('booking-text');
                             const bookingForm = document.getElementById('booking-form');
                             
-                            // Start fade out
                             bookingTitle.classList.add('opacity-0');
                             bookingText.classList.add('opacity-0');
                             bookingForm.classList.add('opacity-0');
@@ -1017,23 +1194,19 @@
                                 pressKitButton.parentElement.classList.add('opacity-0');
                             }
 
-                            // Wait for fade out to complete
                             setTimeout(() => {
-                                // Hide form completely
                                 bookingForm.style.display = 'none';
                                  if(pressKitButton) {
                                     pressKitButton.parentElement.style.display = 'none';
                                 }
 
-                                // Change the text content
                                 bookingTitle.innerText = 'Thank You!';
                                 bookingText.innerText = 'Your inquiry has been sent. I\'ll be in touch soon!';
                                 
-                                // Fade the new text back in
                                 bookingTitle.classList.remove('opacity-0');
                                 bookingText.classList.remove('opacity-0');
 
-                            }, 500); // This duration matches the CSS transition duration
+                            }, 500);
                             
                         }, (error) => {
                             submitButton.disabled = false;
