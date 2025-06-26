@@ -88,8 +88,8 @@
             color: var(--text-primary);
         }
 
-        /* --- Event Banner --- */
-        #event-banner {
+        /* --- Site Announcement Banner --- */
+        #site-announcement {
             background: linear-gradient(90deg, var(--ziggy-color-1), var(--djinn-accent));
             animation: gradient-animation 10s ease infinite;
             background-size: 200% 200%;
@@ -130,14 +130,17 @@
         }
 
         /* --- Header --- */
-        #header {
-            transform: translateY(-100%);
-            transition: transform 0.5s ease, background-color 0.3s ease;
-            background-color: var(--header-bg);
+        #top-container {
+            position: sticky;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 50;
         }
-
-        #header.is-visible {
-            transform: translateY(0);
+        
+        #header {
+            background-color: var(--header-bg);
+            backdrop-filter: blur(10px);
         }
 
         /* --- Active Nav Link Styles --- */
@@ -480,13 +483,6 @@
 </head>
 
 <body class="w-full">
-
-    <div id="event-banner" class="relative text-white py-2 px-4 text-center text-sm sm:text-base">
-        <span class="font-semibold mr-2">Next Event:</span>
-        Paws N Beats @ Sub 101, Manchester - July 4th!
-        <a href="https://www.skiddle.com/whats-on/Manchester/Sub-101-Manchester/Paws-N-Beats/40865480/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-200 ml-2 font-bold">View Event</a>
-        <button id="close-banner-btn" class="absolute top-1/2 right-4 transform -translate-y-1/2 text-white hover:text-gray-300">&times;</button>
-    </div>
     
     <div id="preloader">
         <h1 class="preloader-logo">
@@ -494,24 +490,32 @@
         </h1>
     </div>
 
-    <header id="header" class="backdrop-blur-sm fixed top-0 left-0 right-0 z-50">
-        <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
-            <a href="#hero" class="text-xl font-bold uppercase tracking-wider">
-                DJ<span id="nav-djinn" class="transition-colors" style="color: var(--djinn-accent);">INN</span> / <span
-                    id="nav-ziggy" class="transition-colors" style="color: var(--ziggy-color-1);">ZIGGY</span>
-            </a>
-            <div class="flex items-center space-x-4">
-                <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
-                    <li><a href="#djinn" class="nav-link hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
-                    <li><a href="#ziggy" class="nav-link hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
-                    <li><a href="#mixes" class="nav-link hover:text-orange-500 transition-colors duration-300">Mixes</a></li>
-                    <li><a href="#gallery" class="nav-link hover:text-teal-400 transition-colors duration-300">Gallery</a></li>
-                    <li><a href="#gigs" class="nav-link hover:text-lime-400 transition-colors duration-300">Gigs</a></li>
-                    <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
-                </ul>
-            </div>
-        </nav>
-    </header>
+    <div id="top-container">
+        <div id="site-announcement" class="relative text-white py-2 px-4 text-center text-sm sm:text-base">
+            <span class="font-semibold mr-2">Next Event:</span>
+            Paws N Beats @ Sub 101, Manchester - July 4th!
+            <a href="https://www.skiddle.com/whats-on/Manchester/Sub-101-Manchester/Paws-N-Beats/40865480/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-200 ml-2 font-bold">View Event</a>
+            <button id="close-banner-btn" class="absolute top-1/2 right-4 transform -translate-y-1/2 text-white hover:text-gray-300">&times;</button>
+        </div>
+        <header id="header">
+            <nav class="container mx-auto px-6 py-3 flex justify-between items-center">
+                <a href="#hero" class="text-xl font-bold uppercase tracking-wider">
+                    DJ<span id="nav-djinn" class="transition-colors" style="color: var(--djinn-accent);">INN</span> / <span
+                        id="nav-ziggy" class="transition-colors" style="color: var(--ziggy-color-1);">ZIGGY</span>
+                </a>
+                <div class="flex items-center space-x-4">
+                    <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
+                        <li><a href="#djinn" class="nav-link hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
+                        <li><a href="#ziggy" class="nav-link hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
+                        <li><a href="#mixes" class="nav-link hover:text-orange-500 transition-colors duration-300">Mixes</a></li>
+                        <li><a href="#gallery" class="nav-link hover:text-teal-400 transition-colors duration-300">Gallery</a></li>
+                        <li><a href="#gigs" class="nav-link hover:text-lime-400 transition-colors duration-300">Gigs</a></li>
+                        <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </header>
+    </div>
 
     <main id="hero">
         <div id="split-left" class="split">
@@ -829,13 +833,13 @@
             document.body.classList.add('js-loading');
             document.getElementById('year').textContent = new Date().getFullYear();
 
-            // --- Event Banner Logic ---
-            const eventBanner = document.getElementById('event-banner');
+            // --- Corrected Site Announcement & Header Logic ---
+            const siteAnnouncement = document.getElementById('site-announcement');
             const closeBannerBtn = document.getElementById('close-banner-btn');
 
-            if(eventBanner && closeBannerBtn) {
+            if (closeBannerBtn) {
                 closeBannerBtn.addEventListener('click', () => {
-                    eventBanner.style.display = 'none';
+                    siteAnnouncement.style.display = 'none';
                 });
             }
 
@@ -853,8 +857,7 @@
             }
 
             // --- Intersection Observer for CONTENT FADE-IN ANIMATIONS ---
-            const header = document.getElementById('header');
-            const observer = new IntersectionObserver((entries) => {
+            const contentObserver = new IntersectionObserver((entries) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('is-visible');
@@ -873,26 +876,8 @@
                 });
             }, { threshold: 0.1 });
 
-            document.querySelectorAll('.content-section').forEach(section => observer.observe(section));
-
-            // Sticky Header visibility
-            const heroObserver = new IntersectionObserver((entries) => {
-                const bannerHeight = document.getElementById('event-banner')?.offsetHeight || 0;
-                entries.forEach(entry => {
-                    if(!entry.isIntersecting) {
-                        header.classList.add('is-visible');
-                        header.style.top = `${bannerHeight}px`;
-
-                    } else {
-                        header.classList.remove('is-visible');
-                    }
-                });
-            }, { threshold: 0.1 });
-
-            const hero = document.getElementById('hero');
-            if (hero) {
-                heroObserver.observe(hero);
-            }
+            document.querySelectorAll('.content-section').forEach(section => contentObserver.observe(section));
+            
 
             // --- ROBUST SCROLL-BASED NAVIGATION HIGHLIGHTING ---
             const navLinks = document.querySelectorAll('.nav-link');
