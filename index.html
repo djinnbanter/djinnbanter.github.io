@@ -88,6 +88,19 @@
             color: var(--text-primary);
         }
 
+        /* --- Event Banner --- */
+        #event-banner {
+            background: linear-gradient(90deg, var(--ziggy-color-1), var(--djinn-accent));
+            animation: gradient-animation 10s ease infinite;
+            background-size: 200% 200%;
+        }
+
+        @keyframes gradient-animation {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
         /* --- Preloader --- */
         #preloader {
             position: fixed;
@@ -468,6 +481,13 @@
 
 <body class="w-full">
 
+    <div id="event-banner" class="relative text-white py-2 px-4 text-center text-sm sm:text-base">
+        <span class="font-semibold mr-2">Next Event:</span>
+        Paws N Beats @ Sub 101, Manchester - July 4th!
+        <a href="https://www.skiddle.com/whats-on/Manchester/Sub-101-Manchester/Paws-N-Beats/40865480/" target="_blank" rel="noopener noreferrer" class="underline hover:text-gray-200 ml-2 font-bold">View Event</a>
+        <button id="close-banner-btn" class="absolute top-1/2 right-4 transform -translate-y-1/2 text-white hover:text-gray-300">&times;</button>
+    </div>
+    
     <div id="preloader">
         <h1 class="preloader-logo">
             DJ<span style="color: var(--djinn-accent);">INN</span> / <span style="color: var(--ziggy-color-1);">ZIGGY</span>
@@ -809,6 +829,16 @@
             document.body.classList.add('js-loading');
             document.getElementById('year').textContent = new Date().getFullYear();
 
+            // --- Event Banner Logic ---
+            const eventBanner = document.getElementById('event-banner');
+            const closeBannerBtn = document.getElementById('close-banner-btn');
+
+            if(eventBanner && closeBannerBtn) {
+                closeBannerBtn.addEventListener('click', () => {
+                    eventBanner.style.display = 'none';
+                });
+            }
+
             // --- Preloader ---
             const preloader = document.getElementById('preloader');
             if (preloader) {
@@ -847,8 +877,15 @@
 
             // Sticky Header visibility
             const heroObserver = new IntersectionObserver((entries) => {
+                const bannerHeight = document.getElementById('event-banner')?.offsetHeight || 0;
                 entries.forEach(entry => {
-                    header.classList.toggle('is-visible', !entry.isIntersecting);
+                    if(!entry.isIntersecting) {
+                        header.classList.add('is-visible');
+                        header.style.top = `${bannerHeight}px`;
+
+                    } else {
+                        header.classList.remove('is-visible');
+                    }
                 });
             }, { threshold: 0.1 });
 
