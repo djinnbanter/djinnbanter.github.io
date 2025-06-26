@@ -87,6 +87,9 @@
             background-color: var(--bg-primary);
             color: var(--text-primary);
         }
+        body.overflow-hidden {
+            overflow: hidden;
+        }
 
         /* --- Site Announcement Banner --- */
         #site-announcement {
@@ -503,7 +506,8 @@
                     DJ<span id="nav-djinn" class="transition-colors" style="color: var(--djinn-accent);">INN</span> / <span
                         id="nav-ziggy" class="transition-colors" style="color: var(--ziggy-color-1);">ZIGGY</span>
                 </a>
-                <div class="flex items-center space-x-4">
+                <div class="flex items-center">
+                    <!-- Desktop Nav -->
                     <ul class="hidden sm:flex items-center space-x-8 text-sm uppercase font-semibold">
                         <li><a href="#djinn" class="nav-link hover:text-pink-400 transition-colors duration-300">DJINN</a></li>
                         <li><a href="#ziggy" class="nav-link hover:text-blue-500 transition-colors duration-300">ZIGGY</a></li>
@@ -512,10 +516,27 @@
                         <li><a href="#gigs" class="nav-link hover:text-lime-400 transition-colors duration-300">Gigs</a></li>
                         <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
                     </ul>
+                     <!-- Mobile Menu Button -->
+                    <button id="mobile-menu-button" class="sm:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
+                        <i id="mobile-menu-icon" class="fas fa-bars text-2xl text-white"></i>
+                    </button>
                 </div>
             </nav>
         </header>
     </div>
+
+     <!-- Mobile Menu Panel -->
+    <div id="mobile-menu" class="hidden fixed inset-0 bg-black/95 z-[100] flex flex-col justify-center items-center">
+        <ul class="text-center space-y-8">
+            <li><a href="#djinn" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-pink-400 transition-colors">DJINN</a></li>
+            <li><a href="#ziggy" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-blue-500 transition-colors">ZIGGY</a></li>
+            <li><a href="#mixes" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-orange-500 transition-colors">Mixes</a></li>
+            <li><a href="#gallery" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-teal-400 transition-colors">Gallery</a></li>
+            <li><a href="#gigs" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-lime-400 transition-colors">Gigs</a></li>
+            <li><a href="#booking" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-purple-400 transition-colors">Bookings</a></li>
+        </ul>
+    </div>
+
 
     <main id="hero">
         <div id="split-left" class="split">
@@ -834,14 +855,43 @@
             document.getElementById('year').textContent = new Date().getFullYear();
 
             // --- Corrected Site Announcement & Header Logic ---
-            const siteAnnouncement = document.getElementById('site-announcement');
             const closeBannerBtn = document.getElementById('close-banner-btn');
-
             if (closeBannerBtn) {
                 closeBannerBtn.addEventListener('click', () => {
-                    siteAnnouncement.style.display = 'none';
+                    document.getElementById('site-announcement').style.display = 'none';
                 });
             }
+
+            // --- Mobile Menu Logic ---
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            const mobileMenuIcon = document.getElementById('mobile-menu-icon');
+            const mobileNavLinks = document.querySelectorAll('.mobile-nav-link');
+
+            if (mobileMenuButton) {
+                mobileMenuButton.addEventListener('click', () => {
+                    const isMenuOpen = !mobileMenu.classList.contains('hidden');
+                    mobileMenu.classList.toggle('hidden');
+                    document.body.classList.toggle('overflow-hidden', !isMenuOpen);
+                    
+                    if (isMenuOpen) {
+                        mobileMenuIcon.classList.remove('fa-times');
+                        mobileMenuIcon.classList.add('fa-bars');
+                    } else {
+                        mobileMenuIcon.classList.remove('fa-bars');
+                        mobileMenuIcon.classList.add('fa-times');
+                    }
+                });
+            }
+
+            mobileNavLinks.forEach(link => {
+                link.addEventListener('click', () => {
+                    mobileMenu.classList.add('hidden');
+                    document.body.classList.remove('overflow-hidden');
+                    mobileMenuIcon.classList.remove('fa-times');
+                    mobileMenuIcon.classList.add('fa-bars');
+                });
+            });
 
             // --- Preloader ---
             const preloader = document.getElementById('preloader');
@@ -878,7 +928,6 @@
 
             document.querySelectorAll('.content-section').forEach(section => contentObserver.observe(section));
             
-
             // --- ROBUST SCROLL-BASED NAVIGATION HIGHLIGHTING ---
             const navLinks = document.querySelectorAll('.nav-link');
             const sections = Array.from(document.querySelectorAll('.content-section[id]'));
