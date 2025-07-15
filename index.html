@@ -56,8 +56,14 @@
             /* GIGS COLOR: Lime Green */
             --gigs-accent: #84cc16;
 
+            /* HIGHLIGHTS COLOR: Gold */
+            --highlights-accent: #facc15;
+
             /* BOOKINGS COLOR: Vibrant Purple */
             --bookings-accent: #a855f7;
+
+            /* SOCIALS COLOR: Indigo */
+            --socials-accent: #818cf8;
 
             --card-bg: rgba(22, 22, 22, 0.5);
             --card-border: rgba(255, 255, 255, 0.1);
@@ -148,59 +154,29 @@
             transition: width 0.3s ease;
         }
         
-        .nav-link.nav-active-djinn {
-            color: var(--djinn-accent) !important;
-            text-shadow: 0 0 8px var(--djinn-accent);
-        }
-        .nav-link.nav-active-djinn::after {
-            background-color: var(--djinn-accent);
-            width: 100%;
-        }
+        .nav-link.nav-active-djinn { color: var(--djinn-accent) !important; text-shadow: 0 0 8px var(--djinn-accent); }
+        .nav-link.nav-active-djinn::after { background-color: var(--djinn-accent); width: 100%; }
 
-        .nav-link.nav-active-ziggy {
-            color: var(--ziggy-color-1) !important;
-            text-shadow: 0 0 8px var(--ziggy-color-1);
-        }
-        .nav-link.nav-active-ziggy::after {
-            background-color: var(--ziggy-color-1);
-            width: 100%;
-        }
+        .nav-link.nav-active-ziggy { color: var(--ziggy-color-1) !important; text-shadow: 0 0 8px var(--ziggy-color-1); }
+        .nav-link.nav-active-ziggy::after { background-color: var(--ziggy-color-1); width: 100%; }
 
-        .nav-link.nav-active-mixes {
-            color: var(--mixes-accent) !important;
-            text-shadow: 0 0 8px var(--mixes-accent);
-        }
-        .nav-link.nav-active-mixes::after {
-             background-color: var(--mixes-accent);
-            width: 100%;
-        }
+        .nav-link.nav-active-mixes { color: var(--mixes-accent) !important; text-shadow: 0 0 8px var(--mixes-accent); }
+        .nav-link.nav-active-mixes::after { background-color: var(--mixes-accent); width: 100%; }
 
-        .nav-link.nav-active-gallery {
-            color: var(--gallery-accent) !important;
-            text-shadow: 0 0 8px var(--gallery-accent);
-        }
-        .nav-link.nav-active-gallery::after {
-            background-color: var(--gallery-accent);
-            width: 100%;
-        }
+        .nav-link.nav-active-gallery { color: var(--gallery-accent) !important; text-shadow: 0 0 8px var(--gallery-accent); }
+        .nav-link.nav-active-gallery::after { background-color: var(--gallery-accent); width: 100%; }
 
-        .nav-link.nav-active-gigs {
-            color: var(--gigs-accent) !important;
-            text-shadow: 0 0 8px var(--gigs-accent);
-        }
-        .nav-link.nav-active-gigs::after {
-            background-color: var(--gigs-accent);
-            width: 100%;
-        }
+        .nav-link.nav-active-gigs { color: var(--gigs-accent) !important; text-shadow: 0 0 8px var(--gigs-accent); }
+        .nav-link.nav-active-gigs::after { background-color: var(--gigs-accent); width: 100%; }
         
-        .nav-link.nav-active-bookings {
-            color: var(--bookings-accent) !important;
-            text-shadow: 0 0 8px var(--bookings-accent);
-        }
-        .nav-link.nav-active-bookings::after {
-            background-color: var(--bookings-accent);
-            width: 100%;
-        }
+        .nav-link.nav-active-highlights { color: var(--highlights-accent) !important; text-shadow: 0 0 8px var(--highlights-accent); }
+        .nav-link.nav-active-highlights::after { background-color: var(--highlights-accent); width: 100%; }
+
+        .nav-link.nav-active-bookings { color: var(--bookings-accent) !important; text-shadow: 0 0 8px var(--bookings-accent); }
+        .nav-link.nav-active-bookings::after { background-color: var(--bookings-accent); width: 100%; }
+
+        .nav-link.nav-active-socials { color: var(--socials-accent) !important; text-shadow: 0 0 8px var(--socials-accent); }
+        .nav-link.nav-active-socials::after { background-color: var(--socials-accent); width: 100%; }
 
 
         /* --- Hero Section --- */
@@ -546,6 +522,23 @@
             box-shadow: 0 0 15px var(--text-secondary);
         }
 
+        /* Social Hub */
+        .social-card {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 2rem 1rem;
+            border-radius: 1rem;
+            color: white;
+            text-decoration: none;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .social-card:hover {
+            transform: translateY(-8px) scale(1.05);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+        }
+
         /* Footer */
         footer {
             background-color: var(--footer-bg);
@@ -582,7 +575,9 @@
                         <li><a href="#mixes" class="nav-link hover:text-orange-500 transition-colors duration-300">Mixes</a></li>
                         <li><a href="#gallery" class="nav-link hover:text-teal-400 transition-colors duration-300">Gallery</a></li>
                         <li><a href="#gigs" class="nav-link hover:text-lime-400 transition-colors duration-300">Gigs</a></li>
+                        <li><a href="#past-highlights" class="nav-link hover:text-yellow-400 transition-colors duration-300">Highlights</a></li>
                         <li><a href="#booking" class="nav-link hover:text-purple-400 transition-colors duration-300">Bookings</a></li>
+                        <li><a href="#social-hub" class="nav-link hover:text-indigo-400 transition-colors duration-300">Socials</a></li>
                     </ul>
                      <!-- Mobile Menu Button -->
                     <button id="mobile-menu-button" class="sm:hidden p-2 rounded-md focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white">
@@ -601,7 +596,9 @@
             <li><a href="#mixes" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-orange-500 transition-colors">Mixes</a></li>
             <li><a href="#gallery" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-teal-400 transition-colors">Gallery</a></li>
             <li><a href="#gigs" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-lime-400 transition-colors">Gigs</a></li>
+            <li><a href="#past-highlights" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-yellow-400 transition-colors">Highlights</a></li>
             <li><a href="#booking" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-purple-400 transition-colors">Bookings</a></li>
+            <li><a href="#social-hub" class="mobile-nav-link text-3xl font-bold uppercase tracking-wider hover:text-indigo-400 transition-colors">Socials</a></li>
         </ul>
     </div>
 
@@ -639,18 +636,18 @@
                     </div>
                 </div>
                 <div class="w-full">
-                     <img src="images/djinn.jpg" alt="DJINN" loading="lazy" class="about-image w-full h-full object-cover">
+                     <img src="images/djinn.jpg" alt="DJINN at the decks during a live set." loading="lazy" class="about-image w-full h-full object-cover">
                 </div>
             </div>
              <div class="mt-20">
                 <h3 class="text-3xl font-bold text-center mb-8">Past Events</h3>
                 <div class="max-w-6xl mx-auto grid grid-cols-2 md:grid-cols-6 gap-8 text-center">
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/Branding copy-60.png" alt="Furcation Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/epiclan.png" alt="Insomnia Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/fgg.png" alt="Club Night Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://pbs.twimg.com/profile_images/1828179273900851200/CeBCQSc9_400x400.png" alt="Festival Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/ec.jpg" alt="Festival Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://pbs.twimg.com/profile_images/1743282696204304384/IIkfEsp2_400x400.jpg" alt="Festival Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/Branding copy-60.png" alt="Furcation Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/epiclan.png" alt="EpicLAN Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/fgg.png" alt="Format.GG Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://pbs.twimg.com/profile_images/1828179273900851200/CeBCQSc9_400x400.png" alt="J-Con Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/ec.jpg" alt="Electric Chapel Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://pbs.twimg.com/profile_images/1743282696204304384/IIkfEsp2_400x400.jpg" alt="Insomnia Gaming Festival Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
                 </div>
             </div>
         </div>
@@ -661,7 +658,7 @@
         <div class="container mx-auto px-6 relative">
             <div class="grid lg:grid-cols-2 gap-12 items-center stagger-animation">
                 <div class="w-full lg:order-1">
-                     <img src="images/ziggy.jpg" alt="ZIGGY" loading="lazy" class="about-image w-full h-full object-cover">
+                     <img src="images/ziggy.jpg" alt="ZIGGY wearing a pup hood in a dimly lit environment." loading="lazy" class="about-image w-full h-full object-cover">
                 </div>
                 <div class="lg:order-2 lg:pl-8 text-left">
                     <h2 class="text-5xl md:text-6xl font-black leading-tight">ABOUT <br><span
@@ -673,18 +670,18 @@
                         techno, hard dance, and DnB—and the sets are built for those specific, 'you had to be there'
                         moments where the energy is just right.</p>
                     <div class="flex items-center space-x-5 mt-8">
-                         <a href="#" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-600 hover:text-blue-500 transition-colors flex items-center gap-2"><i class="fas fa-user-secret"></i><span class="text-base">@pup_ziggy</span></a>
+                         <a href="https://twitter.com/pup_ziggy" target="_blank" rel="noopener noreferrer" class="text-2xl text-white-600 hover:text-blue-500 transition-colors flex items-center gap-2"><i class="fas fa-user-secret"></i><span class="text-base">@pup_ziggy</span></a>
                      </div>
                 </div>
             </div>
              <div class="mt-20">
                 <h3 class="text-3xl font-bold text-center mb-8">Past Events</h3>
                 <div class="max-w-5xl mx-auto grid grid-cols-2 md:grid-cols-5 gap-8 text-center">
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/animalz.png" alt="Pup Night Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/ldnfurs.png" alt="Kink Social Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/furc.png" alt="Furry Rave Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://play-lh.googleusercontent.com/4FtR7e_RpjDcrthJNiTW4ua3h-g-EyuzJkP5-LO7ulbu0z3_FY1XAuTDx_GAk53jyGM" loading="lazy" alt="Warehouse Logo" class="max-w-full max-h-full object-contain"></div>
-                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQqkDrg6witVPUI2Xh8VqG4ERFUa65Og8R_aw&s" loading="lazy" alt="Warehouse Logo" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/animalz.png" alt="Animalz Berlin Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/ldnfurs.png" alt="London Furs Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="images/furc.png" alt="Furcation Event Logo" loading="lazy" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://placehold.co/200x200/1a1a1a/ffffff?text=Event+Logo" loading="lazy" alt="Past Event Logo 4" class="max-w-full max-h-full object-contain"></div>
+                    <div class="themed-card event-logo-container p-1 flex items-center justify-center aspect-square"><img src="https://placehold.co/200x200/1a1a1a/ffffff?text=Event+Logo" loading="lazy" alt="Past Event Logo 5" class="max-w-full max-h-full object-contain"></div>
                 </div>
             </div>
         </div>
@@ -751,9 +748,9 @@
         <div class="container mx-auto px-6 relative">
             <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">GALLERY</h2>
              <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
-                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/01.jpg" loading="lazy" alt="DJINN playing live"></div>
-                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/02.jpg" loading="lazy" alt="ZIGGY playing live"></div>
-                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/03.jpeg" loading="lazy" alt="ZIGGY playing live"></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/01.jpg" loading="lazy" alt="DJINN playing live at a packed club event."></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/02.jpg" loading="lazy" alt="ZIGGY in a pup hood, DJing in a dark, atmospheric venue."></div>
+                <div class="gallery-item aspect-w-3 aspect-h-4"><img src="images/03.jpeg" loading="lazy" alt="A close-up shot of ZIGGY's DJ setup and pup mask."></div>
             </div>
         </div>
     </section>
@@ -763,7 +760,7 @@
              <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">UPCOMING GIGS</h2>
              <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-8 stagger-animation">
                 <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://pbs.twimg.com/profile_banners/830878014762278912/1730892565/1500x500" alt="Animalz Flyer" class="gig-card-bg">
+                    <img src="https://pbs.twimg.com/profile_banners/830878014762278912/1730892565/1500x500" alt="Animalz event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">Animalz</p>
@@ -779,7 +776,7 @@
                 </div>
 
                  <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://yorkshirefurs.org.uk/img/assets/brand/logo_white.png" alt="Yorkshire Furs Summer Party 2025 Flyer" class="gig-card-bg">
+                    <img src="https://yorkshirefurs.org.uk/img/assets/brand/logo_white.png" alt="Yorkshire Furs Summer Party 2025 event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">Yorkshire Furs Summer Party 2025: Tails and Togas</p>
@@ -795,7 +792,7 @@
                 </div>
 
                  <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://birminghamfetish.com/_assets/media/844792d93f74a64b42ceb4d56ee8f19a.jpg" alt="BFM Flyer" class="gig-card-bg">
+                    <img src="https://birminghamfetish.com/_assets/media/844792d93f74a64b42ceb4d56ee8f19a.jpg" alt="BFM event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">BFM</p>
@@ -811,7 +808,7 @@
                 </div>
 
                 <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://scontent-lhr6-2.xx.fbcdn.net/v/t39.30808-6/505375282_672599129090635_2069066975222018044_n.jpg?stp=cp6_dst-jpegr_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xKTQ8IfrTyQQ7kNvwHnxgSE&_nc_oc=Adk8Mg_KzHuKRz-42LJPnMbwWxu8DQL3lgjixo-Zd2QFC-HKaGfXgaGM3oB5Ux1L7Ig&_nc_zt=23&se=-1&_nc_ht=scontent-lhr6-2.xx&_nc_gid=gxt3DZwa5vYjxEX4X2yjxw&oh=00_AfO1XC-2sfYr750wkWNpOOh6fU0vAXCQQ3D6lClwp9vlaQ&oe=6860DE53" alt="TBC Flyer" class="gig-card-bg">
+                    <img src="https://scontent-lhr6-2.xx.fbcdn.net/v/t39.30808-6/505375282_672599129090635_2069066975222018044_n.jpg?stp=cp6_dst-jpegr_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xKTQ8IfrTyQQ7kNvwHnxgSE&_nc_oc=Adk8Mg_KzHuKRz-42LJPnMbwWxu8DQL3lgjixo-Zd2QFC-HKaGfXgaGM3oB5Ux1L7Ig&_nc_zt=23&se=-1&_nc_ht=scontent-lhr6-2.xx&_nc_gid=gxt3DZwa5vYjxEX4X2yjxw&oh=00_AfO1XC-2sfYr750wkWNpOOh6fU0vAXCQQ3D6lClwp9vlaQ&oe=6860DE53" alt="Electric Chapel event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">TBC</p>
@@ -827,7 +824,7 @@
                 </div>
 
                  <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://pbs.twimg.com/media/GYfEqH0WoAAfuB2?format=jpg&name=large" alt="FORMATGG Halloween Flyer" class="gig-card-bg">
+                    <img src="https://pbs.twimg.com/media/GYfEqH0WoAAfuB2?format=jpg&name=large" alt="FORMATGG Halloween event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">FORMATGG: The Ultimate Gaming Social Halloween</p>
@@ -843,7 +840,7 @@
                 </div>
                 
                  <div class="themed-card p-6 flex flex-col md:flex-row items-center justify-between gap-4 transition">
-                    <img src="https://scontent-lhr6-2.xx.fbcdn.net/v/t39.30808-6/505375282_672599129090635_2069066975222018044_n.jpg?stp=cp6_dst-jpegr_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xKTQ8IfrTyQQ7kNvwHnxgSE&_nc_oc=Adk8Mg_KzHuKRz-42LJPnMbwWxu8DQL3lgjixo-Zd2QFC-HKaGfXgaGM3oB5Ux1L7Ig&_nc_zt=23&se=-1&_nc_ht=scontent-lhr6-2.xx&_nc_gid=gxt3DZwa5vYjxEX4X2yjxw&oh=00_AfO1XC-2sfYr750wkWNpOOh6fU0vAXCQQ3D6lClwp9vlaQ&oe=6860DE53" alt="New Years Eve Party Flyer" class="gig-card-bg">
+                    <img src="https://scontent-lhr6-2.xx.fbcdn.net/v/t39.30808-6/505375282_672599129090635_2069066975222018044_n.jpg?stp=cp6_dst-jpegr_tt6&_nc_cat=100&ccb=1-7&_nc_sid=127cfc&_nc_ohc=xKTQ8IfrTyQQ7kNvwHnxgSE&_nc_oc=Adk8Mg_KzHuKRz-42LJPnMbwWxu8DQL3lgjixo-Zd2QFC-HKaGfXgaGM3oB5Ux1L7Ig&_nc_zt=23&se=-1&_nc_ht=scontent-lhr6-2.xx&_nc_gid=gxt3DZwa5vYjxEX4X2yjxw&oh=00_AfO1XC-2sfYr750wkWNpOOh6fU0vAXCQQ3D6lClwp9vlaQ&oe=6860DE53" alt="New Years Eve Party event banner" class="gig-card-bg">
                     <div class="relative z-10 text-center md:text-left flex-grow bg-black/50 backdrop-blur-sm p-4 rounded-lg">
                         <div class="flex items-center gap-3 justify-center sm:justify-start">
                            <p class="text-xl font-bold">New Years Eve Party</p>
@@ -861,6 +858,37 @@
              </div>
         </div>
     </section>
+
+    <!-- NEW Past Highlights Section -->
+    <section id="past-highlights" class="py-20 md:py-32 content-section bg-gray-900/50">
+        <div class="container mx-auto px-6 relative">
+             <h2 class="text-4xl md:text-5xl font-black mb-12 text-center">PAST HIGHLIGHTS</h2>
+             <div class="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 stagger-animation">
+                <!-- Highlight Card 1 -->
+                <div class="themed-card p-6 flex flex-col items-center text-center transition bg-black/20">
+                    <img src="images/fgg.png" alt="Format.GG Logo" class="h-20 w-20 mb-4 rounded-full object-contain p-2 bg-white/10">
+                    <p class="text-xl font-bold">Format.GG</p>
+                    <p class="text-secondary mt-1">Birmingham</p>
+                    <span class="text-xs font-bold uppercase px-2 py-1 mt-2 rounded-full bg-[var(--djinn-accent)] text-black">DJINN</span>
+                </div>
+                <!-- Highlight Card 2 -->
+                <div class="themed-card p-6 flex flex-col items-center text-center transition bg-black/20">
+                    <img src="https://pbs.twimg.com/profile_images/1743282696204304384/IIkfEsp2_400x400.jpg" alt="Insomnia Gaming Festival Logo" class="h-20 w-20 mb-4 rounded-full object-contain p-2 bg-white/10">
+                    <p class="text-xl font-bold">Insomnia i72</p>
+                    <p class="text-secondary mt-1">NEC, Birmingham</p>
+                    <span class="text-xs font-bold uppercase px-2 py-1 mt-2 rounded-full bg-[var(--djinn-accent)] text-black">DJINN</span>
+                </div>
+                <!-- Highlight Card 3 -->
+                <div class="themed-card p-6 flex flex-col items-center text-center transition bg-black/20">
+                    <img src="images/animalz.png" alt="Animalz Logo" class="h-20 w-20 mb-4 rounded-full object-contain p-2 bg-white/10">
+                    <p class="text-xl font-bold">Animalz</p>
+                    <p class="text-secondary mt-1">Berlin</p>
+                    <span class="text-xs font-bold uppercase px-2 py-1 mt-2 rounded-full bg-[var(--ziggy-color-1)] text-white">ZIGGY</span>
+                </div>
+             </div>
+        </div>
+    </section>
+
 
     <section id="booking" class="py-20 md:py-32 content-section">
         <div id="booking-container" class="container mx-auto px-6 text-center flex flex-col justify-center items-center min-h-[432px]">
@@ -887,26 +915,37 @@
                 </div>
             </form>
             <div id="booking-confirmation" class="mt-16">
-                 <a href="#" id="press-kit-link" class="btn-glow-press inline-block bg-transparent border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
-                    <i class="fas fa-download mr-2"></i>Press Kit coming soon!
+                 <a href="#booking" id="press-kit-link" class="btn-glow-press inline-block bg-transparent border-2 border-gray-600 hover:bg-gray-700 hover:border-gray-700 text-white font-bold py-3 px-8 rounded-full transition-all duration-300">
+                    <i class="fas fa-download mr-2"></i>Press Kit (Coming Soon)
                  </a>
             </div>
-                        <!-- Social Media Links -->
-            <div class="mt-16 flex flex-wrap justify-center items-center gap-4">
-                <a href="https://twitch.tv/djinnbanter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center py-2 px-5 font-semibold text-white rounded-full transition-transform hover:scale-105 shadow-lg bg-gradient-to-r from-purple-600 to-indigo-600">
-                    <i class="fab fa-twitch mr-2"></i> Twitch
+        </div>
+    </section>
+
+    <!-- NEW Social Hub Section -->
+    <section id="social-hub" class="py-20 md:py-32 content-section">
+        <div class="container mx-auto px-6 text-center">
+            <h2 class="text-4xl md:text-5xl font-black mb-12">SOCIAL HUB</h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-6 max-w-5xl mx-auto stagger-animation">
+                <a href="https://twitch.tv/djinnbanter" target="_blank" rel="noopener noreferrer" class="social-card bg-purple-600">
+                    <i class="fab fa-twitch text-4xl"></i>
+                    <span class="mt-2 font-semibold">Twitch</span>
                 </a>
-                <a href="https://twitter.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center py-2 px-5 font-semibold text-white rounded-full transition-transform hover:scale-105 shadow-lg bg-gradient-to-r from-gray-800 to-black">
-                    <i class="fab fa-x-twitter mr-2"></i> X (Twitter)
+                <a href="https://twitter.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="social-card bg-gray-800">
+                    <i class="fab fa-x-twitter text-4xl"></i>
+                    <span class="mt-2 font-semibold">X (Twitter)</span>
                 </a>
-                <a href="https://instagram.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center py-2 px-5 font-semibold text-white rounded-full transition-transform hover:scale-105 shadow-lg bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500">
-                    <i class="fab fa-instagram mr-2"></i> Instagram
+                <a href="https://instagram.com/djinnbanter" target="_blank" rel="noopener noreferrer" class="social-card" style="background: radial-gradient(circle at 30% 107%, #fdf497 0%, #fdf497 5%, #fd5949 45%, #d6249f 60%, #285AEB 90%);">
+                    <i class="fab fa-instagram text-4xl"></i>
+                    <span class="mt-2 font-semibold">Instagram</span>
                 </a>
-                <a href="https://bsky.app/profile/djinnbanter.com" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center py-2 px-5 font-semibold text-white rounded-full transition-transform hover:scale-105 shadow-lg bg-gradient-to-r from-blue-500 to-sky-400">
-                    <i class="fa-solid fa-cloud mr-2"></i> BlueSky
+                <a href="https://bsky.app/profile/djinnbanter.com" target="_blank" rel="noopener noreferrer" class="social-card bg-blue-500">
+                    <i class="fa-solid fa-cloud text-4xl"></i>
+                    <span class="mt-2 font-semibold">BlueSky</span>
                 </a>
-                <a href="https://www.mixcloud.com/djinnbanter/" target="_blank" rel="noopener noreferrer" class="inline-flex items-center justify-center py-2 px-5 font-semibold text-white rounded-full transition-transform hover:scale-105 shadow-lg bg-gradient-to-r from-slate-500 to-gray-400">
-                    <i class="fab fa-mixcloud mr-2"></i> Mixcloud
+                <a href="https://www.mixcloud.com/djinnbanter/" target="_blank" rel="noopener noreferrer" class="social-card bg-slate-500">
+                    <i class="fab fa-mixcloud text-4xl"></i>
+                    <span class="mt-2 font-semibold">Mixcloud</span>
                 </a>
             </div>
         </div>
@@ -1106,7 +1145,9 @@
                     link.classList.toggle('nav-active-mixes', isActive && linkHref === 'mixes');
                     link.classList.toggle('nav-active-gallery', isActive && linkHref === 'gallery');
                     link.classList.toggle('nav-active-gigs', isActive && linkHref === 'gigs');
+                    link.classList.toggle('nav-active-highlights', isActive && linkHref === 'past-highlights');
                     link.classList.toggle('nav-active-bookings', isActive && linkHref === 'booking');
+                    link.classList.toggle('nav-active-socials', isActive && linkHref === 'social-hub');
                 });
             }
 
@@ -1120,7 +1161,7 @@
         (function () {
             // https://dashboard.emailjs.com/admin/account
             emailjs.init({
-                publicKey: "IU-0-MlqyXF4M4vib",
+                publicKey: "YOUR_EMAILJS_PUBLIC_KEY",
             });
         })();
     </script>
@@ -1167,7 +1208,9 @@
                             submitButton.disabled = false;
                             submitButton.innerText = 'Send Inquiry';
                             console.log('FAILED...', error);
-                            alert('Oops! Something went wrong. Please try again.');
+                            const bookingText = document.getElementById('booking-text');
+                            bookingText.innerText = 'Oops! Something went wrong. Please try again or contact me directly.';
+                            bookingText.style.color = '#ff6b6b';
                         });
                 });
             }
