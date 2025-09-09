@@ -1,0 +1,1698 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Mod Factory Builder</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brass-dark: #71512E;
+            --brass: #a97a4a;
+            --brass-light: #D6A46E;
+            --dark-metal: #2E2F34;
+            --dark-metal-border: #1E1F22;
+            --panel-bg: #3a3f4b;
+            --accent-cyan: #0891b2;
+            --rivet-color: #2c303a;
+            --canvas-bg-color: #1a1a1a;
+        }
+
+        body {
+            font-family: 'Roboto Slab', serif;
+            overflow: hidden;
+        }
+        #control-panel {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--dark-metal-border);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #control-panel.collapsed {
+            transform: translateX(calc(-100% + 40px));
+        }
+        #toggle-icon {
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        #control-panel.collapsed #toggle-icon {
+            transform: rotate(180deg);
+        }
+        .canvas-bg {
+            background-color: var(--canvas-bg-color);
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        .node-foreign-object {
+            overflow: visible;
+        }
+
+        .plate, .node-body {
+            position: relative;
+            font-weight: 700;
+            color: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--dark-metal-border);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+        }
+
+        .rivet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--rivet-color);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+            border: 1px solid #1a1c20;
+        }
+        .rivet.top-left { top: 4px; left: 4px; }
+        .rivet.top-right { top: 4px; right: 4px; }
+        .rivet.bottom-left { bottom: 4px; left: 4px; }
+        .rivet.bottom-right { bottom: 4px; right: 4px; }
+
+        .node-body {
+            cursor: grab;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            padding: 8px;
+            transition: border-color 0.2s, background-color 0.3s;
+            gap: 8px;
+            user-select: none; /* Prevents text highlighting */
+        }
+        .node-body:active {
+            cursor: grabbing;
+        }
+       
+        .connector-hitbox {
+            stroke: transparent;
+            stroke-width: 20px;
+            fill: none;
+            cursor: pointer;
+        }
+        .connector-casing {
+            stroke: var(--canvas-bg-color);
+            stroke-width: 7px;
+            fill: none;
+            pointer-events: none;
+        }
+        .connector {
+            stroke: #64748b;
+            stroke-width: 3px;
+            fill: none;
+            pointer-events: none; 
+        }
+        .edge.water-pipe .connector { 
+            stroke: #3b82f6; 
+        }
+        .edge.lava-pipe .connector { 
+            stroke: #f97316; 
+        }
+        .edge:hover .connector {
+             stroke: #94a3b8;
+        }
+        .handle {
+            fill: #94a3b8;
+            stroke: #1e293b;
+            stroke-width: 2px;
+            cursor: crosshair;
+            opacity: 0;
+            transition: opacity 0.2s, fill 0.2s;
+        }
+        g.node:hover .handle {
+            opacity: 1;
+        }
+        .handle:hover, .handle.highlight {
+            fill: var(--accent-cyan);
+        }
+        .waypoint {
+            fill: #94a3b8;
+            stroke: #1e293b;
+            stroke-width: 2px;
+            cursor: grab;
+        }
+        .waypoint:active {
+            cursor: grabbing;
+        }
+
+        .resize-handle {
+            fill: var(--accent-cyan);
+            stroke: var(--dark-metal-border);
+            stroke-width: 2px;
+            opacity: 0;
+            pointer-events: none;
+        }
+        g.node.selected .resize-handle {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .resize-handle.nwse-cursor { cursor: nwse-resize; }
+        .resize-handle.nesw-cursor { cursor: nesw-resize; }
+
+        /* Selection Styles */
+        .selected .node-body, .waypoint.selected {
+            border: 2px solid var(--accent-cyan) !important;
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.2), 0 2px 4px rgba(0,0,0,0.5), 0 0 15px var(--accent-cyan);
+        }
+        .edge.selected .connector {
+            stroke: var(--accent-cyan);
+        }
+        .moving-arrow {
+            pointer-events: none;
+        }
+       
+        .autocomplete-item {
+            padding: 8px 12px;
+            cursor: pointer;
+            color: white;
+        }
+        .autocomplete-item:hover { background-color: var(--accent-cyan); }
+        .autocomplete-item.highlighted { background-color: #0e7490; }
+        .toast { transition: opacity 0.5s, transform 0.5s; }
+        #drag-ghost {
+            position: absolute;
+            pointer-events: none;
+            z-index: 100;
+            opacity: 0.7;
+        }
+        .color-swatch {
+            width: 1rem;
+            height: 1rem;
+            border-radius: 0.25rem;
+            display: inline-block;
+            margin-right: 0.5rem;
+            vertical-align: middle;
+            border: 1px solid rgba(0,0,0,0.5);
+        }
+        .btn-plate {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .btn-plate:hover {
+            filter: brightness(1.2);
+        }
+        .modal {
+             background-color: #2a3a4a;
+            background-image: 
+                linear-gradient(rgba(169, 122, 74, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(169, 122, 74, 0.1) 1px, transparent 1px);
+            background-size: 20px 20px;
+            border: 2px solid var(--brass);
+            color: #e5e7eb;
+        }
+        .guide-icon {
+            width: 24px;
+            height: 24px;
+            margin-right: 0.75rem;
+            flex-shrink: 0;
+            stroke-width: 1.5px;
+        }
+
+        #context-menu {
+            position: fixed;
+            z-index: 1000;
+            background-color: var(--panel-bg);
+            border: 1px solid var(--dark-metal-border);
+            border-radius: 0.25rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            min-width: 150px;
+            padding: 4px;
+        }
+        .context-menu-item {
+            background: none;
+            border: none;
+            color: white;
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 8px 12px;
+            cursor: pointer;
+            text-align: left;
+        }
+        .context-menu-item:hover {
+            background-color: var(--accent-cyan);
+        }
+        .context-menu-item:disabled {
+            color: #6b7280;
+            cursor: not-allowed;
+        }
+        .context-menu-separator {
+            height: 1px;
+            background-color: var(--dark-metal-border);
+            margin: 4px 0;
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-white h-screen w-screen overflow-hidden">
+    <!-- Main Canvas Area -->
+    <div id="canvas-container" class="w-full h-full absolute top-0 left-0 canvas-bg">
+        <svg id="canvas" class="w-full h-full">
+            <defs></defs>
+        </svg>
+    </div>
+
+     <!-- View Controls -->
+    <div id="view-controls" class="absolute bottom-4 right-4 z-10 flex flex-col gap-1">
+        <button id="undo-btn" title="Undo (Ctrl+Z)" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+        </button>
+        <button id="redo-btn" title="Redo (Ctrl+Y)" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3L21 13"/></svg>
+        </button>
+        <div class="h-2"></div> <!-- Separator -->
+        <button id="copy-btn" title="Copy (Ctrl+C)" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+        </button>
+        <button id="paste-btn" title="Paste (Ctrl+V)" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path><rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect></svg>
+        </button>
+        <button id="duplicate-btn" title="Duplicate (Ctrl+D)" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="8" width="12" height="12" rx="2" ry="2"></rect><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"></path></svg>
+        </button>
+        <div class="h-2"></div> <!-- Separator -->
+        <button id="zoom-in-btn" title="Zoom In" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" /></svg>
+        </button>
+        <button id="zoom-out-btn" title="Zoom Out" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 12H6" /></svg>
+        </button>
+        <button id="fit-all-btn" title="Fit All" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white shadow-lg transition-colors">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4h4m12 4V4h-4M4 16v4h4m12-4v4h-4" /></svg>
+        </button>
+    </div>
+
+    <!-- Side Control Panel -->
+    <div id="control-panel" class="fixed top-4 left-4 rounded-lg p-4 shadow-2xl w-64 flex flex-col z-20 max-h-[calc(100vh-2rem)]">
+        <div class="flex-shrink-0 mb-4 text-center">
+            <h1 class="text-xl font-bold text-cyan-400" style="text-shadow: 0 0 5px #0891b2;">Factory Builder</h1>
+        </div>
+
+        <div class="flex-grow pr-2 space-y-3 overflow-y-auto no-scrollbar">
+            <!-- Ingredients -->
+            <div>
+                <h3 class="font-semibold text-gray-200 border-b border-gray-700 pb-2 mb-2">Ingredients</h3>
+                <div class="relative">
+                    <input type="text" id="ingredient-search" placeholder="Search item..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                    <div id="autocomplete-list" class="hidden absolute bg-gray-700 border border-gray-500 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto no-scrollbar w-full mt-1"></div>
+                </div>
+                 <button id="add-ingredient-btn" title="Add Ingredient" class="w-full mt-2 btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #22c55e, #166534);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    + Add Ingredient
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
+            </div>
+
+            <!-- Machines -->
+            <div>
+                 <h3 class="font-semibold text-gray-200 border-b border-gray-700 pb-2 mb-2">Machines</h3>
+                 <div class="grid grid-cols-2 gap-1" id="machine-buttons">
+                     <!-- Machine buttons will be generated by JS -->
+                 </div>
+            </div>
+
+            <!-- Storage -->
+            <div>
+                 <h3 class="font-semibold text-gray-200 border-b border-gray-700 pb-2 mb-2">Storage</h3>
+                 <div id="storage-buttons">
+                    <button id="add-vault-btn" title="Add a Vault to the canvas" class="w-full btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #6b7280, #4b5563);">
+                         <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                        Vault
+                        <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                    </button>
+                 </div>
+            </div>
+        </div>
+
+        <div class="flex-shrink-0 mt-auto pt-4 border-t border-gray-700 space-y-2">
+            <h3 class="font-semibold text-gray-200 text-center">Project</h3>
+             <div class="grid grid-cols-2 gap-2">
+                 <button id="export-btn" title="Export project as JSON file" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #14b8a6, #0f766e);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Export
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
+                <button id="import-btn" title="Import project from JSON file" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #38bdf8, #0ea5e9);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Import
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
+            </div>
+             <div class="grid grid-cols-2 gap-2 mt-2">
+                <button id="clear-btn" title="Clear canvas" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #ef4444, #b91c1c);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Clear
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
+                <button id="help-btn" title="Show Help" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #a855f7, #7e22ce);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Help
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
+             </div>
+        </div>
+
+        <button id="panel-toggle-btn" class="absolute top-1/2 right-0 transform translate-x-full -translate-y-1/2 w-8 h-24 bg-gray-700 hover:bg-cyan-600 text-white rounded-r-lg focus:outline-none flex items-center justify-center">
+            <svg id="toggle-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+            </svg>
+        </button>
+    </div>
+    
+    <div id="toast" class="toast fixed bottom-5 right-5 bg-green-500 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transform translate-y-5 pointer-events-none z-[101]"></div>
+    
+    <!-- How-to Guide Modal -->
+    <div id="guide-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+        <div class="modal p-8 rounded-lg shadow-2xl max-w-4xl w-full mx-4 max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-6 flex-shrink-0">
+                <h2 class="text-3xl font-bold text-white" style="text-shadow: 0 0 8px var(--brass);">Engineer's Field Manual</h2>
+                <button id="close-guide-btn" class="text-gray-400 hover:text-white text-4xl">&times;</button>
+            </div>
+            <div class="grid md:grid-cols-2 gap-8 text-sm overflow-y-auto no-scrollbar pr-4 flex-grow">
+                <div>
+                    <h3 class="font-bold text-xl text-cyan-400 mb-4 border-b-2 border-cyan-400/50 pb-2">How to Use</h3>
+                    <ul class="space-y-4">
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg> <span><b>Adding Nodes:</b> Use the panel on the left or drag machines directly onto the canvas.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 12a4 4 0 0 1-4-4V4"/><path d="M20 12a4 4 0 0 0 4-4V4"/></svg> <span><b>Connecting Nodes:</b> Hover over a node to see its connection points. Click and drag to start drawing a conveyor.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M12 6v12"/></svg> <span><b>Routing Conveyors:</b> While drawing, click on the canvas to place waypoints. Finish by dragging to another handle.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span><b>Editing & Deleting:</b> Double-click a node to change its label. Select any item and press <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Delete</kbd>.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 21.5 18 18"/><path d="m15 6-9 9"/><path d="M9 15h6v6"/><path d="M15 9V3H9"/></svg> <span><b>Resizing Nodes:</b> Click a node to select it, then drag the corner handles that appear to change its size.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4v6"/><path d="M20 20h-6v-6"/><path d="M14 10l10-10"/><path d="M4 20l10-10"/></svg> <span><b>Navigation:</b> Click and drag the background to pan, and use your mouse wheel to zoom.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> <span><b>Sharing Plans:</b> Use <b>Export</b> to save your design to a file, and <b>Import</b> to load one.</span></li>
+                    </ul>
+                </div>
+                <div>
+                     <h3 class="font-bold text-xl text-cyan-400 mb-4 border-b-2 border-cyan-400/50 pb-2">Shortcuts</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Right Click</kbd>
+                            <span class="ml-2">: Open context menu</span>
+                        </li>
+                        <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl</kbd> + 
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">C</kbd>
+                            <span class="ml-2">: Copy selected node</span>
+                        </li>
+                        <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl</kbd> + 
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">V</kbd>
+                            <span class="ml-2">: Paste node at cursor</span>
+                        </li>
+                        <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl</kbd> + 
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">D</kbd>
+                            <span class="ml-2">: Duplicate selected node</span>
+                        </li>
+                         <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl</kbd> + 
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Z</kbd>
+                            <span class="ml-2">: Undo last action</span>
+                        </li>
+                         <li class="flex items-center">
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Ctrl</kbd> + 
+                            <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Y</kbd>
+                            <span class="ml-2">: Redo last action</span>
+                        </li>
+                        <li class="flex items-center">
+                            <kbd class="w-16 text-center px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Delete</kbd>
+                            <span class="ml-2">: Delete selected item</span>
+                        </li>
+                        <li class="flex items-center">
+                            <kbd class="w-16 text-center px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Esc</kbd>
+                            <span class="ml-2">: Cancel connection</span>
+                        </li>
+                    </ul>
+                    <h3 class="font-bold text-xl text-cyan-400 mt-6 mb-4 border-b-2 border-cyan-400/50 pb-2">Color Key</h3>
+                    <ul class="space-y-3">
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #22c55e, #166534)"></span> <b>Input Node:</b> Only provides items.</li>
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #ef4444, #b91c1c)"></span> <b>Output Node:</b> Only receives items.</li>
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #eab308, #ca8a04)"></span> <b>Intermediate Node:</b> Sends and receives.</li>
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #3b82f6, #1d4ed8)"></span> <b>Machine Node:</b> Processes items.</li>
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #6b7280, #4b5563)"></span> <b>Vault Node:</b> Stores items.</li>
+                        <li class="flex items-center"><div class="h-1 w-4 bg-blue-500 mr-2"></div> <b>Water Conveyor</b></li>
+                        <li class="flex items-center"><div class="h-1 w-4 bg-orange-500 mr-2"></div> <b>Lava Conveyor</b></li>
+                    </ul>
+                </div>
+            </div>
+             <div class="mt-6 flex items-center justify-end flex-shrink-0">
+                <label class="flex items-center text-sm">
+                    <input type="checkbox" id="dont-show-again-checkbox" class="h-4 w-4 rounded border-gray-300 text-cyan-600 focus:ring-cyan-500">
+                    <span class="ml-2 text-gray-400">Don't show this again</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div id="confirm-modal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+        <div class="modal p-8 rounded-lg shadow-2xl max-w-sm w-full mx-4 flex flex-col text-center">
+            <h2 id="confirm-title" class="text-2xl font-bold text-white mb-4">Are you sure?</h2>
+            <p id="confirm-text" class="text-gray-300 mb-6">This action cannot be undone.</p>
+            <div class="grid grid-cols-2 gap-4">
+                <button id="confirm-cancel-btn" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #6b7280, #4b5563);">
+                    Cancel
+                </button>
+                <button id="confirm-ok-btn" class="w-full btn-plate font-bold py-2 px-4 rounded-md transition-colors" style="background-image: linear-gradient(to bottom, #ef4444, #b91c1c);">
+                    Confirm
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Right-click Context Menu -->
+    <div id="context-menu" class="hidden"></div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+
+            // --- CONSTANTS ---
+            const svgNS = 'http://www.w3.org/2000/svg';
+            const snapGridSize = 20;
+            const handleSpacing = 80; // Pixels per handle
+            const HISTORY_LIMIT = 50;
+
+            // --- DOM ELEMENTS ---
+            const canvasContainer = document.getElementById('canvas-container');
+            const svgCanvas = document.getElementById('canvas');
+            const controlPanel = document.getElementById('control-panel');
+            const toggleBtn = document.getElementById('panel-toggle-btn');
+            const exportBtn = document.getElementById('export-btn');
+            const importBtn = document.getElementById('import-btn');
+            const clearBtn = document.getElementById('clear-btn');
+            const helpBtn = document.getElementById('help-btn');
+            const ingredientSearch = document.getElementById('ingredient-search');
+            const autocompleteList = document.getElementById('autocomplete-list');
+            const addIngredientBtn = document.getElementById('add-ingredient-btn');
+            const machineButtonsContainer = document.getElementById('machine-buttons');
+            const addVaultBtn = document.getElementById('add-vault-btn');
+            const toast = document.getElementById('toast');
+            
+            // View Controls
+            const undoBtn = document.getElementById('undo-btn');
+            const redoBtn = document.getElementById('redo-btn');
+            const copyBtn = document.getElementById('copy-btn');
+            const pasteBtn = document.getElementById('paste-btn');
+            const duplicateBtn = document.getElementById('duplicate-btn');
+            const zoomInBtn = document.getElementById('zoom-in-btn');
+            const zoomOutBtn = document.getElementById('zoom-out-btn');
+            const fitAllBtn = document.getElementById('fit-all-btn');
+
+            // Modals & Context Menu
+            const guideModal = document.getElementById('guide-modal');
+            const closeGuideBtn = document.getElementById('close-guide-btn');
+            const dontShowAgainCheckbox = document.getElementById('dont-show-again-checkbox');
+            const confirmModal = document.getElementById('confirm-modal');
+            const confirmTitle = document.getElementById('confirm-title');
+            const confirmText = document.getElementById('confirm-text');
+            const confirmOkBtn = document.getElementById('confirm-ok-btn');
+            const confirmCancelBtn = document.getElementById('confirm-cancel-btn');
+            const contextMenu = document.getElementById('context-menu');
+            let confirmCallback = null;
+            
+            // --- STATE MANAGEMENT ---
+            const AppState = {
+                transform: { x: 0, y: 0, scale: 1 },
+                nodeCounter: 0,
+                edgeCounter: 0,
+                selectedItem: null,
+                activeElement: null, // The element being actively dragged/resized
+                dragOffset: {x: 0, y: 0},
+                isConnecting: false,
+                tempLine: null,
+                tempWaypoints: [],
+                connectionSource: { nodeId: null, handle: null },
+                isResizing: false,
+                resizeInfo: {},
+                undoStack: [],
+                redoStack: [],
+                clipboard: null,
+                lastMouseCoords: { x: 0, y: 0 },
+                contextTarget: null, // Element that was right-clicked
+            };
+            
+            // --- DATA ---
+            const itemList = ['Acacia Boat', 'Acacia Button', 'Acacia Chest Boat', 'Acacia Door', 'Acacia Fence', 'Acacia Fence Gate', 'Acacia Leaves', 'Acacia Log', 'Acacia Planks', 'Acacia Pressure Plate', 'Acacia Sapling', 'Acacia Sign', 'Acacia Slab', 'Acacia Stairs', 'Acacia Trapdoor', 'Acacia Wood', 'Adjustable Chain Gearshift', 'Adjustable Crate', 'Allay Spawn Egg', 'Allium', 'Amethyst Block', 'Amethyst Cluster', 'Amethyst Shard', 'Andesite', 'Andesite Casing', 'Andesite Funnel', 'Andesite Ladder', 'Andesite Scaffolding', 'Anvil', 'Apple', 'Armor Stand', 'Arrow', 'Axolotl Spawn Egg', 'Azalea', 'Azalea Leaves', 'Azure Bluet', 'Baked Potato', 'Bamboo', 'Bamboo Block', 'Bamboo Button', 'Bamboo Chest Raft', 'Bamboo Door', 'Bamboo Fence', 'Bamboo Fence Gate', 'Bamboo Mosaic', 'Bamboo Mosaic Slab', 'Bamboo Mosaic Stairs', 'Bamboo Planks', 'Bamboo Pressure Plate', 'Bamboo Raft', 'Bamboo Sign', 'Bamboo Slab', 'Bamboo Stairs', 'Bamboo Trapdoor', 'Barrel', 'Bat Spawn Egg', 'Beacon', 'Bedrock', 'Bee Nest', 'Bee Spawn Egg', 'Beef', 'Beehive', 'Beetroot', 'Beetroot Seeds', 'Beetroot Soup', 'Bell', 'Belt Connector', 'Big Dripleaf', 'Birch Boat', 'Birch Button', 'Birch Chest Boat', 'Birch Door', 'Birch Fence', 'Birch Fence Gate', 'Birch Leaves', 'Birch Log', 'Birch Planks', 'Birch Pressure Plate', 'Birch Sapling', 'Birch Sign', 'Birch Slab', 'Birch Stairs', 'Birch Trapdoor', 'Birch Wood', 'Black Banner', 'Black Bed', 'Black Candle', 'Black Carpet', 'Black Concrete', 'Black Concrete Powder', 'Black Dye', 'Black Glazed Terracotta', 'Black Shulker Box', 'Black Stained Glass', 'Black Stained Glass Pane', 'Black Terracotta', 'Black Wool', 'Blackstone', 'Blackstone Slab', 'Blackstone Stairs', 'Blackstone Wall', 'Blast Furnace', 'Blaze Powder', 'Blaze Rod', 'Blaze Spawn Egg', 'Blue Banner', 'Blue Bed', 'Blue Candle', 'Blue Carpet', 'Blue Concrete', 'Blue Concrete Powder', 'Blue Dye', 'Blue Glazed Terracotta', 'Blue Orchid', 'Blue Shulker Box', 'Blue Stained Glass', 'Blue Stained Glass Pane', 'Blue Terracotta', 'Blue Wool', 'Bone', 'Bone Block', 'Bone Meal', 'Book', 'Bookshelf', 'Bow', 'Bowl', 'Brain Coral', 'Brain Coral Block', 'Brain Coral Fan', 'Brass Casing', 'Brass Funnel', 'Bread', 'Brewing Stand', 'Brick', 'Brick Slab', 'Brick Stairs', 'Brick Wall', 'Bricks', 'Brown Banner', 'Brown Bed', 'Brown Candle', 'Brown Carpet', 'Brown Concrete', 'Brown Concrete Powder', 'Brown Dye', 'Brown Glazed Terracotta', 'Brown Mushroom', 'Brown Mushroom Block', 'Brown Shulker Box', 'Brown Stained Glass', 'Brown Stained Glass Pane', 'Brown Terracotta', 'Brown Wool', 'Brush', 'Bubble Coral', 'Bubble Coral Block', 'Bubble Coral Fan', 'Bucket', 'Budding Amethyst', 'Bundle', 'Cactus', 'Cake', 'Calcite', 'Camel Spawn Egg', 'Campfire', 'Candle', 'Carrot', 'Carrot on a Stick', 'Cartography Table', 'Carved Pumpkin', 'Cat Spawn Egg', 'Cauldron', 'Cave Spider Spawn Egg', 'Chain', 'Chain Drive', 'Chainmail Boots', 'Chainmail Chestplate', 'Chainmail Helmet', 'Chainmail Leggings', 'Charcoal', 'Cherry Boat', 'Cherry Button', 'Cherry Chest Boat', 'Cherry Door', 'Cherry Fence', 'Cherry Fence Gate', 'Cherry Leaves', 'Cherry Log', 'Cherry Planks', 'Cherry Pressure Plate', 'Cherry Sapling', 'Cherry Sign', 'Cherry Slab', 'Cherry Stairs', 'Cherry Trapdoor', 'Cherry Wood', 'Chest', 'Chest Minecart', 'Chicken', 'Chicken Spawn Egg', 'Chiseled Bookshelf', 'Chiseled Deepslate', 'Chiseled Nether Bricks', 'Chiseled Polished Blackstone', 'Chiseled Quartz Block', 'Chiseled Red Sandstone', 'Chiseled Sandstone', 'Chiseled Stone Bricks', 'Chute', 'Clay', 'Clay Ball', 'Clock', 'Clutch', 'Coal', 'Coal Block', 'Coal Ore', 'Coarse Dirt', 'Cobbled Deepslate', 'Cobbled Deepslate Slab', 'Cobbled Deepslate Stairs', 'Cobbled Deepslate Wall', 'Cobblestone', 'Cobblestone Slab', 'Cobblestone Stairs', 'Cobblestone Wall', 'Cobweb', 'Cocoa Beans', 'Cod', 'Cod Bucket', 'Cod Spawn Egg', 'Cogwheel', 'Comparator', 'Compass', 'Composter', 'Conduit', 'Cooked Beef', 'Cooked Chicken', 'Cooked Cod', 'Cooked Mutton', 'Cooked Porkchop', 'Cooked Rabbit', 'Cooked Salmon', 'Cookie', 'Copper Block', 'Copper Casing', 'Copper Ingot', 'Copper Ore', 'Cornflower', 'Cow Spawn Egg', 'Cracked Deepslate Bricks', 'Cracked Deepslate Tiles', 'Cracked Nether Bricks', 'Cracked Polished Blackstone Bricks', 'Cracked Stone Bricks', 'Crafting Table', 'Creeper Banner Pattern', 'Creeper Head', 'Creeper Spawn Egg', 'Crimson Button', 'Crimson Door', 'Crimson Fence', 'Crimson Fence Gate', 'Crimson Fungus', 'Crimson Hyphae', 'Crimson Nylium', 'Crimson Planks', 'Crimson Pressure Plate', 'Crimson Roots', 'Crimson Sign', 'Crimson Slab', 'Crimson Stairs', 'Crimson Stem', 'Crimson Trapdoor', 'Crossbow', 'Crushing Wheels', 'Crying Obsidian', 'Cut Copper', 'Cut Copper Slab', 'Cut Copper Stairs', 'Cut Red Sandstone', 'Cut Red Sandstone Slab', 'Cut Sandstone', 'Cut Sandstone Slab', 'Cyan Banner', 'Cyan Bed', 'Cyan Candle', 'Cyan Carpet', 'Cyan Concrete', 'Cyan Concrete Powder', 'Cyan Dye', 'Cyan Glazed Terracotta', 'Cyan Shulker Box', 'Cyan Stained Glass', 'Cyan Stained Glass Pane', 'Cyan Terracotta', 'Cyan Wool', 'Damaged Anvil', 'Dandelion', 'Dark Oak Boat', 'Dark Oak Button', 'Dark Oak Chest Boat', 'Dark Oak Door', 'Dark Oak Fence', 'Dark Oak Fence Gate', 'Dark Oak Leaves', 'Dark Oak Log', 'Dark Oak Planks', 'Dark Oak Pressure Plate', 'Dark Oak Sapling', 'Dark Oak Sign', 'Dark Oak Slab', 'Dark Oak Stairs', 'Dark Oak Trapdoor', 'Dark Oak Wood', 'Dark Prismarine', 'Dark Prismarine Slab', 'Dark Prismarine Stairs', 'Daylight Detector', 'Dead Brain Coral', 'Dead Brain Coral Block', 'Dead Brain Coral Fan', 'Dead Bubble Coral', 'Dead Bubble Coral Block', 'Dead Bubble Coral Fan', 'Dead Bush', 'Dead Fire Coral', 'Dead Fire Coral Block', 'Dead Fire Coral Fan', 'Dead Horn Coral', 'Dead Horn Coral Block', 'Dead Horn Coral Fan', 'Dead Tube Coral', 'Dead Tube Coral Block', 'Dead Tube Coral Fan', 'Decorated Pot', 'Deepslate', 'Deepslate Brick Slab', 'Deepslate Brick Stairs', 'Deepslate Brick Wall', 'Deepslate Bricks', 'Deepslate Coal Ore', 'Deepslate Copper Ore', 'Deepslate Diamond Ore', 'Deepslate Emerald Ore', 'Deepslate Gold Ore', 'Deepslate Iron Ore', 'Deepslate Lapis Ore', 'Deepslate Redstone Ore', 'Deepslate Tile Slab', 'Deepslate Tile Stairs', 'Deepslate Tile Wall', 'Deepslate Tiles', 'Deployer', 'Detector Rail', 'Diamond', 'Diamond Axe', 'Diamond Block', 'Diamond Boots', 'Diamond Chestplate', 'Diamond Helmet', 'Diamond Hoe', 'Diamond Horse Armor', 'Diamond Leggings', 'Diamond Ore', 'Diamond Pickaxe', 'Diamond Shovel', 'Diamond Sword', 'Diorite', 'Diorite Slab', 'Diorite Stairs', 'Diorite Wall', 'Dirt', 'Dirt Path', 'Disc Fragment (5)', 'Dispenser', 'Dolphin Spawn Egg', 'Donkey Spawn Egg', 'Dragon\'s Breath', 'Dragon Egg', 'Dragon Head', 'Dried Kelp', 'Dried Kelp Block', 'Dripstone Block', 'Dropper', 'Drowned Spawn Egg', 'Echo Shard', 'Egg', 'Elder Guardian Spawn Egg', 'Elytra', 'Emerald', 'Emerald Block', 'Emerald Ore', 'Encased Chain Drive', 'Encased Fan', 'Enchanted Book', 'Enchanted Golden Apple', 'Enchanting Table', 'End Crystal', 'End Portal Frame', 'End Rod', 'End Stone', 'End Stone Brick Slab', 'End Stone Brick Stairs', 'End Stone Brick Wall', 'End Stone Bricks', 'Ender Chest', 'Ender Dragon Spawn Egg', 'Ender Eye', 'Ender Pearl', 'Enderman Spawn Egg', 'Endermite Spawn Egg', 'Engineer\'s Goggles', 'Engineer\'s Toolbox', 'Evoker Spawn Egg', 'Experience Bottle', 'Extendo Grip', 'Exposed Copper', 'Exposed Cut Copper', 'Exposed Cut Copper Slab', 'Exposed Cut Copper Stairs', 'Farmland', 'Feather', 'Fermented Spider Eye', 'Fern', 'Fire Charge', 'Fire Coral', 'Fire Coral Block', 'Fire Coral Fan', 'Firework Rocket', 'Firework Star', 'Fishing Rod', 'Fletching Table', 'Flint', 'Flint and Steel', 'Flower Banner Pattern', 'Flower Pot', 'Flowering Azalea', 'Flowering Azalea Leaves', 'Fluid Pipe', 'Fluid Tank', 'Fox Spawn Egg', 'Frog Spawn Egg', 'Frogspawn', 'Furnace', 'Furnace Engine', 'Furnace Minecart', 'Gantry Carriage', 'Gantry Shaft', 'Gearbox', 'Ghast Spawn Egg', 'Ghast Tear', 'Gilded Blackstone', 'Glass', 'Glass Bottle', 'Glass Pane', 'Glistering Melon Slice', 'Globe Banner Pattern', 'Glow Berries', 'Glow Ink Sac', 'Glow Item Frame', 'Glow Lichen', 'Glow Squid Spawn Egg', 'Glowstone', 'Glowstone Dust', 'Goat Horn', 'Goat Spawn Egg', 'Gold Block', 'Gold Ingot', 'Gold Nugget', 'Gold Ore', 'Golden Apple', 'Golden Axe', 'Golden Boots', 'Golden Carrot', 'Golden Chestplate', 'Golden Helmet', 'Golden Hoe', 'Golden Horse Armor', 'Golden Leggings', 'Golden Pickaxe', 'Golden Shovel', 'Golden Sword', 'Granite', 'Granite Slab', 'Granite Stairs', 'Granite Wall', 'Grass', 'Grass Block', 'Gravel', 'Gray Banner', 'Gray Bed', 'Gray Candle', 'Gray Carpet', 'Gray Concrete', 'Gray Concrete Powder', 'Gray Dye', 'Gray Glazed Terracotta', 'Gray Shulker Box', 'Gray Stained Glass', 'Gray Stained Glass Pane', 'Gray Terracotta', 'Gray Wool', 'Green Banner', 'Green Bed', 'Green Candle', 'Green Carpet', 'Green Concrete', 'Green Concrete Powder', 'Green Dye', 'Green Glazed Terracotta', 'Green Shulker Box', 'Green Stained Glass', 'Green Stained Glass Pane', 'Green Terracotta', 'Green Wool', 'Grindstone', 'Guardian Spawn Egg', 'Gunpowder', 'Hand Crank', 'Hanging Roots', 'Hay Bale', 'Heart of the Sea', 'Heavy Core', 'Heavy Weighted Pressure Plate', 'Hoglin Spawn Egg', 'Honey Block', 'Honey Bottle', 'Honeycomb', 'Honeycomb Block', 'Hopper', 'Hopper Minecart', 'Horn Coral', 'Horn Coral Block', 'Horn Coral Fan', 'Horse Spawn Egg', 'Hose Pulley', 'Husk Spawn Egg', 'Ice', 'Infested Chiseled Stone Bricks', 'Infested Cobblestone', 'Infested Cracked Stone Bricks', 'Infested Deepslate', 'Infested Mossy Stone Bricks', 'Infested Stone', 'Infested Stone Bricks', 'Ink Sac', 'Iron Axe', 'Iron Bars', 'Iron Block', 'Iron Boots', 'Iron Chestplate', 'Iron Door', 'Iron Helmet', 'Iron Hoe', 'Iron Horse Armor', 'Iron Ingot', 'Iron Leggings', 'Iron Nugget', 'Iron Ore', 'Iron Pickaxe', 'Iron Shovel', 'Iron Sword', 'Iron Trapdoor', 'Item Drain', 'Item Frame', 'Item Vault', 'Jack o\'Lantern', 'Jigsaw Block', 'Jukebox', 'Jungle Boat', 'Jungle Button', 'Jungle Chest Boat', 'Jungle Door', 'Jungle Fence', 'Jungle Fence Gate', 'Jungle Leaves', 'Jungle Log', 'Jungle Planks', 'Jungle Pressure Plate', 'Jungle Sapling', 'Jungle Sign', 'Jungle Slab', 'Jungle Stairs', 'Jungle Trapdoor', 'Jungle Wood', 'Kelp', 'Ladder', 'Lantern', 'Lapis Block', 'Lapis Lazuli', 'Lapis Ore', 'Large Amethyst Bud', 'Large Cogwheel', 'Large Fern', 'Large Water Wheel', 'Lava Bucket', 'Lead', 'Leather', 'Leather Boots', 'Leather Cap', 'Leather Horse Armor', 'Leather Pants', 'Leather Tunic', 'Lectern', 'Lever', 'Light', 'Light Blue Banner', 'Light Blue Bed', 'Light Blue Candle', 'Light Blue Carpet', 'Light Blue Concrete', 'Light Blue Concrete Powder', 'Light Blue Dye', 'Light Blue Glazed Terracotta', 'Light Blue Shulker Box', 'Light Blue Stained Glass', 'Light Blue Stained Glass Pane', 'Light Blue Terracotta', 'Light Blue Wool', 'Light Gray Banner', 'Light Gray Bed', 'Light Gray Candle', 'Light Gray Carpet', 'Light Gray Concrete', 'Light Gray Concrete Powder', 'Light Gray Dye', 'Light Gray Glazed Terracotta', 'Light Gray Shulker Box', 'Light Gray Stained Glass', 'Light Gray Stained Glass Pane', 'Light Gray Terracotta', 'Light Gray Wool', 'Light Weighted Pressure Plate', 'Lightning Rod', 'Lilac', 'Lily of the Valley', 'Lily Pad', 'Lime Banner', 'Lime Bed', 'Lime Candle', 'Lime Carpet', 'Lime Concrete', 'Lime Concrete Powder', 'Lime Dye', 'Lime Glazed Terracotta', 'Lime Shulker Box', 'Lime Stained Glass', 'Lime Stained Glass Pane', 'Lime Terracotta', 'Lime Wool', 'Lingering Potion', 'Llama Spawn Egg', 'Lodestone', 'Loom', 'Magenta Banner', 'Magenta Bed', 'Magenta Candle', 'Magenta Carpet', 'Magenta Concrete', 'Magenta Concrete Powder', 'Magenta Dye', 'Magenta Glazed Terracotta', 'Magenta Shulker Box', 'Magenta Stained Glass', 'Magenta Stained Glass Pane', 'Magenta Terracotta', 'Magenta Wool', 'Magma Block', 'Magma Cream', 'Magma Cube Spawn Egg', 'Mangrove Boat', 'Mangrove Button', 'Mangrove Chest Boat', 'Mangrove Door', 'Mangrove Fence', 'Mangrove Fence Gate', 'Mangrove Leaves', 'Mangrove Log', 'Mangrove Planks', 'Mangrove Pressure Plate', 'Mangrove Propagule', 'Mangrove Roots', 'Mangrove Sign', 'Mangrove Slab', 'Mangrove Stairs', 'Mangrove Trapdoor', 'Mangrove Wood', 'Map', 'Mechanical Arm', 'Mechanical Bearing', 'Mechanical Belt', 'Mechanical Drill', 'Mechanical Harvester', 'Mechanical Mixer', 'Mechanical Piston', 'Mechanical Plough', 'Mechanical Press', 'Mechanical Pump', 'Mechanical Saw', 'Medium Amethyst Bud', 'Melon', 'Melon Seeds', 'Melon Slice', 'Metal Girder', 'Metal Ladder', 'Metal Scaffolding', 'Milk Bucket', 'Minecart', 'Mojang Banner Pattern', 'Mooshroom Spawn Egg', 'Moss Block', 'Moss Carpet', 'Mossy Cobblestone', 'Mossy Cobblestone Slab', 'Mossy Cobblestone Stairs', 'Mossy Cobblestone Wall', 'Mossy Stone Brick Slab', 'Mossy Stone Brick Stairs', 'Mossy Stone Brick Wall', 'Mossy Stone Bricks', 'Mud', 'Mud Brick Slab', 'Mud Brick Stairs', 'Mud Brick Wall', 'Mud Bricks', 'Muddy Mangrove Roots', 'Mule Spawn Egg', 'Mushroom Stem', 'Mushroom Stew', 'Music Disc (13)', 'Music Disc (5)', 'Music Disc (cat)', 'Music Disc (blocks)', 'Music Disc (chirp)', 'Music Disc (far)', 'Music Disc (mall)', 'Music Disc (mellohi)', 'Music Disc (otherside)', 'Music Disc (Pigstep)', 'Music Disc (relic)', 'Music Disc (stal)', 'Music Disc (strad)', 'Music Disc (wait)', 'Music Disc (ward)', 'Mutton', 'Mycelium', 'Name Tag', 'Nautilus Shell', 'Nether Brick', 'Nether Brick Fence', 'Nether Brick Slab', 'Nether Brick Stairs', 'Nether Brick Wall', 'Nether Bricks', 'Nether Gold Ore', 'Nether Quartz Ore', 'Nether Sprouts', 'Nether Star', 'Nether Wart', 'Nether Wart Block', 'Netherite Axe', 'Netherite Block', 'Netherite Boots', 'Netherite Chestplate', 'Netherite Helmet', 'Netherite Hoe', 'Netherite Ingot', 'Netherite Leggings', 'Netherite Pickaxe', 'Netherite Scrap', 'Netherite Shovel', 'Netherite Sword', 'Netherite Upgrade Smithing Template', 'Netherrack', 'Note Block', 'Oak Boat', 'Oak Button', 'Oak Chest Boat', 'Oak Door', 'Oak Fence', 'Oak Fence Gate', 'Oak Leaves', 'Oak Log', 'Oak Planks', 'Oak Pressure Plate', 'Oak Sapling', 'Oak Sign', 'Oak Slab', 'Oak Stairs', 'Oak Trapdoor', 'Oak Wood', 'Observer', 'Obsidian', 'Ocelot Spawn Egg', 'Ochre Froglight', 'Orange Banner', 'Orange Bed', 'Orange Candle', 'Orange Carpet', 'Orange Concrete', 'Orange Concrete Powder', 'Orange Dye', 'Orange Glazed Terracotta', 'Orange Shulker Box', 'Orange Stained Glass', 'Orange Stained Glass Pane', 'Orange Terracotta', 'Orange Tulip', 'Orange Wool', 'Oxeye Daisy', 'Oxidized Copper', 'Oxidized Cut Copper', 'Oxidized Cut Copper Slab', 'Oxidized Cut Copper Stairs', 'Packed Ice', 'Packed Mud', 'Painting', 'Panda Spawn Egg', 'Paper', 'Parrot Spawn Egg', 'Pearlescent Froglight', 'Peony', 'Petrified Oak Slab', 'Phantom Membrane', 'Phantom Spawn Egg', 'Pig Spawn Egg', 'Piglin Banner Pattern', 'Piglin Head', 'Piglin Spawn Egg', 'Pillager Spawn Egg', 'Pink Banner', 'Pink Bed', 'Pink Candle', 'Pink Carpet', 'Pink Concrete', 'Pink Concrete Powder', 'Pink Dye', 'Pink Glazed Terracotta', 'Pink Petals', 'Pink Shulker Box', 'Pink Stained Glass', 'Pink Stained Glass Pane', 'Pink Terracotta', 'Pink Tulip', 'Pink Wool', 'Piston', 'Piston Extension Pole', 'Pitcher Plant', 'Pitcher Pod', 'Player Head', 'Podzol', 'Pointed Dripstone', 'Poisonous Potato', 'Polar Bear Spawn Egg', 'Polished Andesite', 'Polished Andesite Slab', 'Polished Andesite Stairs', 'Polished Basalt', 'Polished Blackstone', 'Polished Blackstone Brick Slab', 'Polished Blackstone Brick Stairs', 'Polished Blackstone Brick Wall', 'Polished Blackstone Bricks', 'Polished Blackstone Button', 'Polished Blackstone Pressure Plate', 'Polished Blackstone Slab', 'Polished Blackstone Stairs', 'Polished Blackstone Wall', 'Polished Deepslate', 'Polished Deepslate Slab', 'Polished Deepslate Stairs', 'Polished Deepslate Wall', 'Polished Diorite', 'Polished Diorite Slab', 'Polished Diorite Stairs', 'Polished Granite', 'Polished Granite Slab', 'Polished Granite Stairs', 'Popped Chorus Fruit', 'Poppy', 'Porkchop', 'Potato', 'Potion', 'Powder Snow Bucket', 'Powered Rail', 'Prismarine', 'Prismarine Brick Slab', 'Prismarine Brick Stairs', 'Prismarine Bricks', 'Prismarine Crystals', 'Prismarine Shard', 'Prismarine Slab', 'Prismarine Stairs', 'Prismarine Wall', 'Pufferfish', 'Pufferfish Bucket', 'Pufferfish Spawn Egg', 'Pumpkin', 'Pumpkin Pie', 'Pumpkin Seeds', 'Purple Banner', 'Purple Bed', 'Purple Candle', 'Purple Carpet', 'Purple Concrete', 'Purple Concrete Powder', 'Purple Dye', 'Purple Glazed Terracotta', 'Purple Shulker Box', 'Purple Stained Glass', 'Purple Stained Glass Pane', 'Purple Terracotta', 'Purple Wool', 'Purpur Block', 'Purpur Pillar', 'Purpur Slab', 'Purpur Stairs', 'Quartz', 'Quartz Block', 'Quartz Bricks', 'Quartz Pillar', 'Quartz Slab', 'Quartz Stairs', 'Rabbit', 'Rabbit Foot', 'Rabbit Hide', 'Rabbit Spawn Egg', 'Rabbit Stew', 'Rail', 'Ravager Spawn Egg', 'Raw Copper', 'Raw Copper Block', 'Raw Gold', 'Raw Gold Block', 'Raw Iron', 'Raw Iron Block', 'Recovery Compass', 'Red Banner', 'Red Bed', 'Red Candle', 'Red Carpet', 'Red Concrete', 'Red Concrete Powder', 'Red Dye', 'Red Glazed Terracotta', 'Red Mushroom', 'Red Mushroom Block', 'Red Nether Brick Slab', 'Red Nether Brick Stairs', 'Red Nether Brick Wall', 'Red Nether Bricks', 'Red Sand', 'Red Sandstone', 'Red Sandstone Slab', 'Red Sandstone Stairs', 'Red Sandstone Wall', 'Red Shulker Box', 'Red Stained Glass', 'Red Stained Glass Pane', 'Red Terracotta', 'Red Tulip', 'Red Wool', 'Redstone', 'Redstone Block', 'Redstone Lamp', 'Redstone Ore', 'Redstone Torch', 'Reinforced Deepslate', 'Repeater', 'Repeating Command Block', 'Respawn Anchor', 'Rooted Dirt', 'Rope Pulley', 'Rose Bush', 'Rotation Speed Controller', 'Rotten Flesh', 'Saddle', 'Sail Frame', 'Salmon', 'Salmon Bucket', 'Salmon Spawn Egg', 'Sand', 'Sandstone', 'Sandstone Slab', 'Sandstone Stairs', 'Sandstone Wall', 'Scaffolding', 'Sculk', 'Sculk Catalyst', 'Sculk Sensor', 'Sculk Shrieker', 'Sculk Vein', 'Scute', 'Sea Lantern', 'Sea Pickle', 'Seagrass', 'Shaft', 'Shears', 'Sheep Spawn Egg', 'Shield', 'Shroomlight', 'Shulker Box', 'Shulker Shell', 'Shulker Spawn Egg', 'Silverfish Spawn Egg', 'Skeleton Horse Spawn Egg', 'Skeleton Skull', 'Skeleton Spawn Egg', 'Skull Banner Pattern', 'Slime Block', 'Slime Spawn Egg', 'Slimeball', 'Small Amethyst Bud', 'Small Dripleaf', 'Smithing Table', 'Smoker', 'Smooth Basalt', 'Smooth Quartz Block', 'Smooth Quartz Slab', 'Smooth Quartz Stairs', 'Smooth Red Sandstone', 'Smooth Red Sandstone Slab', 'Smooth Red Sandstone Stairs', 'Smooth Sandstone', 'Smooth Sandstone Slab', 'Smooth Sandstone Stairs', 'Smooth Stone', 'Smooth Stone Slab', 'Sniffer Egg', 'Sniffer Spawn Egg', 'Snout Banner Pattern', 'Snow', 'Snow Block', 'Snowball', 'Soul Campfire', 'Soul Lantern', 'Soul Sand', 'Soul Soil', 'Soul Torch', 'Spawner', 'Spectral Arrow', 'Speedometer', 'Spider Eye', 'Spider Spawn Egg', 'Splash Potion', 'Sponge', 'Spore Blossom', 'Spout', 'Spruce Boat', 'Spruce Button', 'Spruce Chest Boat', 'Spruce Door', 'Spruce Fence', 'Spruce Fence Gate', 'Spruce Leaves', 'Spruce Log', 'Spruce Planks', 'Spruce Pressure Plate', 'Spruce Sapling', 'Spruce Sign', 'Spruce Slab', 'Spruce Stairs', 'Spruce Trapdoor', 'Spruce Wood', 'Spyglass', 'Squid Spawn Egg', 'Stick', 'Sticky Piston', 'Stone', 'Stone Axe', 'Stone Brick Slab', 'Stone Brick Stairs', 'Stone Brick Wall', 'Stone Bricks', 'Stone Button', 'Stone Hoe', 'Stone Pickaxe', 'Stone Pressure Plate', 'Stone Shovel', 'Stone Slab', 'Stone Stairs', 'Stone Sword', 'Stonecutter', 'Stray Spawn Egg', 'Stressometer', 'Strider Spawn Egg', 'String', 'Stripped Acacia Log', 'Stripped Acacia Wood', 'Stripped Bamboo Block', 'Stripped Birch Log', 'Stripped Birch Wood', 'Stripped Cherry Log', 'Stripped Cherry Wood', 'Stripped Crimson Hyphae', 'Stripped Crimson Stem', 'Stripped Dark Oak Log', 'Stripped Dark Oak Wood', 'Stripped Jungle Log', 'Stripped Jungle Wood', 'Stripped Mangrove Log', 'Stripped Mangrove Wood', 'Stripped Oak Log', 'Stripped Oak Wood', 'Stripped Spruce Log', 'Stripped Spruce Wood', 'Stripped Warped Hyphae', 'Stripped Warped Stem', 'Structure Block', 'Structure Void', 'Sugar', 'Sugar Cane', 'Sunflower', 'Suspicious Gravel', 'Suspicious Sand', 'Suspicious Stew', 'Sweet Berries', 'Tadpole Bucket', 'Tadpole Spawn Egg', 'Tall Grass', 'Target', 'Terracotta', 'Tinted Glass', 'Tipped Arrow', 'TNT', 'TNT Minecart', 'Torch', 'Torchflower', 'Torchflower Seeds', 'Totem of Undying', 'Trader Llama Spawn Egg', 'Train Casing', 'Train Controls', 'Train Observer', 'Train Signal', 'Train Station', 'Train Track', 'Trapped Chest', 'Trident', 'Tripwire Hook', 'Tropical Fish', 'Tropical Fish Bucket', 'Tropical Fish Spawn Egg', 'Tube Coral', 'Tube Coral Block', 'Tube Coral Fan', 'Tuff', 'Turtle Egg', 'Turtle Shell', 'Turtle Spawn Egg', 'Twisting Vines', 'Verdant Froglight', 'Vertical Gearbox', 'Vex Spawn Egg', 'Villager Spawn Egg', 'Vindicator Spawn Egg', 'Vines', 'Wandering Trader Spawn Egg', 'Warden Spawn Egg', 'Warped Button', 'Warped Door', 'Warped Fence', 'Warped Fence Gate', 'Warped Fungus', 'Warped Fungus on a Stick', 'Warped Hyphae', 'Warped Nylium', 'Warped Planks', 'Warped Pressure Plate', 'Warped Roots', 'Warped Sign', 'Warped Slab', 'Warped Stairs', 'Warped Stem', 'Warped Trapdoor', 'Warped Wart Block', 'Water Bucket', 'Water Wheel', 'Waxed Copper Block', 'Waxed Cut Copper', 'Waxed Cut Copper Slab', 'Waxed Cut Copper Stairs', 'Waxed Exposed Copper', 'Waxed Exposed Cut Copper', 'Waxed Exposed Cut Copper Slab', 'Waxed Exposed Cut Copper Stairs', 'Waxed Oxidized Copper', 'Waxed Oxidized Cut Copper', 'Waxed Oxidized Cut Copper Slab', 'Waxed Oxidized Cut Copper Stairs', 'Waxed Weathered Copper', 'Waxed Weathered Cut Copper', 'Waxed Weathered Cut Copper Slab', 'Waxed Weathered Cut Copper Stairs', 'Weathered Copper', 'Weathered Cut Copper Slab', 'Weathered Cut Copper Stairs', 'Weeping Vines', 'Weighted Ejector', 'Wet Sponge', 'Wheat', 'Wheat Seeds', 'White Banner', 'White Bed', 'White Candle', 'White Carpet', 'White Concrete', 'White Concrete Powder', 'White Dye', 'White Glazed Terracotta', 'White Shulker Box', 'White Stained Glass', 'White Stained Glass Pane', 'White Terracotta', 'White Tulip', 'White Wool', 'Windmill Bearing', 'Witch Spawn Egg', 'Wither Rose', 'Wither Skeleton Skull', 'Wither Skeleton Spawn Egg', 'Wither Spawn Egg', 'Wolf Spawn Egg', 'Wooden Axe', 'Wooden Hoe', 'Wooden Ladder', 'Wooden Scaffolding', 'Wooden Shovel', 'Wooden Sword', 'Wrench', 'Writable Book', 'Written Book', 'Yellow Banner', 'Yellow Bed', 'Yellow Candle', 'Yellow Carpet', 'Yellow Concrete', 'Yellow Concrete Powder', 'Yellow Dye', 'Yellow Glazed Terracotta', 'Yellow Shulker Box', 'Yellow Stained Glass', 'Yellow Stained Glass Pane', 'Yellow Terracotta', 'Yellow Wool', 'Zoglin Spawn Egg', 'Zombie Head', 'Zombie Horse Spawn Egg', 'Zombie Spawn Egg', 'Zombie Villager Spawn Egg', 'Zombified Piglin Spawn Egg'];
+            const machineTypes = {
+                'Mixing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.14 13.82a2.5 2.5 0 0 0-3.32 0L6.5 19H4.83a2 2 0 0 1-1.42-3.41L12 7l8.59 8.59a2 2 0 0 1-1.42 3.41H17.5l-2.36-5.18Z"/><path d="M12 3v4"/><path d="m15 4-2 2-2-2"/><path d="M12 21a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/></svg>',
+                'Crushing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/><path d="M19 16.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/><path d="M5 16.5V14l1.5-1.5"/><path d="M19 16.5V14l-1.5-1.5"/><path d="m14 12.5-1-1-1 1-1-1-1 1-1-1-1 1"/><path d="M12 11.5V9.5L10.5 8h-4L5 9.5V12"/></svg>',
+                'Pressing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 6.5V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2-2h-4a2 2 0 0 1-2-2v-1.5"/><path d="M4 12h8"/><path d="m6 10-2 2 2 2"/><path d="M12 18H4a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h8"/></svg>',
+                'Compacting': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 9-6 6"/><path d="m9 9 6 6"/><path d="M14 22H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v3"/><path d="M14 22V10a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2Z"/></svg>',
+                'Milling': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 12 6 6"/><path d="m18 18-6-6"/><path d="M6 18h12"/><path d="M18 6 6 18"/><path d="m12 18 6-6"/><path d="M12 6v12"/></svg>',
+                'Sawing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 22h8"/><path d="M12 18V2"/><path d="M4 12a8 8 0 1 0 16 0"/><path d="M18.37 7.63 12 12l-6.37-4.37"/><path d="M18.37 16.37 12 12l-6.37 4.37"/></svg>',
+                'Deploying': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 4V2H9v2"/><path d="M18 8h-2.12a2 2 0 0 0-1.79 1.11L12 13h0a2 2 0 0 0-1.79 1.11H8"/><path d="M12 13V9"/><path d="M12 13l-1.8-4.2a2 2 0 0 0-3.58-1.03l-1.04 1.73"/><path d="M12 13l1.8-4.2a2 2 0 0 1 3.58-1.03l1.04 1.73"/><path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h2"/><path d="M19 18h2a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-2"/></svg>',
+                'Sequenced Assembly': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 16V8a4 4 0 1 1 8 0v8"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="M4 10H2"/><path d="M10 4V2"/><path d="M14 4V2"/><path d="M22 10h-2"/><path d="M4 14H2"/><path d="M22 14h-2"/><path d="M4 18H2"/><path d="M22 18h-2"/></svg>',
+                'Haunting (Fan)': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5C9.24 5 7 7.24 7 10s2.24 5 5 5 5-2.24 5-5S14.76 5 12 5Z"/><path d="M17.5 14.5c1.38 0 2.5 1.12 2.5 2.5s-1.12 2.5-2.5 2.5-2.5-1.12-2.5-2.5 1.12-2.5 2.5-2.5Z"/><path d="M6.5 14.5c1.38 0 2.5 1.12 2.5 2.5S7.88 19.5 6.5 19.5 4 18.38 4 17s1.12-2.5 2.5-2.5Z"/><path d="M12 21v-4"/><path d="M12 3V2"/><path d="m4.2 4.2 1.4 1.4"/><path d="M2 12h1"/><path d="m18.4 18.4 1.4 1.4"/><path d="M21 12h1"/><path d="m18.4 5.6 1.4-1.4"/><path d="m4.2 19.8 1.4-1.4"/></svg>',
+                'Smoking (Fan)': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3V2"/><path d="m4.2 4.2 1.4 1.4"/><path d="M2 12h1"/><path d="m18.4 18.4 1.4 1.4"/><path d="M21 12h1"/><path d="m18.4 5.6 1.4-1.4"/><path d="M12 22a7 7 0 0 0 7-7h-4a3 3 0 0 1-3-3V2"/><path d="m4.2 19.8 1.4-1.4"/></svg>',
+                'Splashing (Fan)': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3V2"/><path d="m4.2 4.2 1.4 1.4"/><path d="M2 12h1"/><path d="m18.4 18.4 1.4 1.4"/><path d="M21 12h1"/><path d="m18.4 5.6 1.4-1.4"/><path d="M12 12a3 3 0 0 0-3 3c0 1.66 2.5 3 3 3s3-1.34 3-3a3 3 0 0 0-3-3Z"/><path d="M12 22s7-4.48 7-9.5A7 7 0 0 0 5 12.5C5 17.52 12 22 12 22Z"/><path d="m4.2 19.8 1.4-1.4"/></svg>',
+                'Blasting (Fan)': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3V2"/><path d="m4.2 4.2 1.4 1.4"/><path d="M2 12h1"/><path d="m18.4 18.4 1.4 1.4"/><path d="M21 12h1"/><path d="m18.4 5.6 1.4-1.4"/><path d="M11 17a3 3 0 0 1-3 3H5a2 2 0 0 1-2-2V9a2 2 0 0 1 2-2h2a3 3 0 0 1 3 3v7Z"/><path d="M20 15h-2a3 3 0 0 1-3-3V9a2 2 0 0 1 2-2h3a2 2 0 0 1 2 2v4a3 3 0 0 1-3 3Z"/><path d="m4.2 19.8 1.4-1.4"/></svg>',
+                'Sanding': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8"/><path d="M2 18h20"/></svg>',
+                'Crafting': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>'
+            };
+            
+            const g = document.createElementNS(svgNS, 'g');
+            svgCanvas.appendChild(g);
+
+            // --- UTILITY FUNCTIONS ---
+            const throttle = (func, limit) => {
+                let inThrottle;
+                return function() {
+                    const args = arguments;
+                    const context = this;
+                    if (!inThrottle) {
+                        func.apply(context, args);
+                        inThrottle = true;
+                        setTimeout(() => inThrottle = false, limit);
+                    }
+                }
+            };
+
+            // --- INITIALIZATION ---
+            const init = () => {
+                // Populate machine buttons
+                const machineList = [...Object.keys(machineTypes)];
+                
+                machineList.sort().forEach(type => {
+                     const btn = document.createElement('button');
+                    btn.className = "w-full btn-plate font-bold py-1.5 px-2 transition-colors text-center text-sm flex items-center justify-center gap-2";
+                    btn.style.backgroundImage = 'linear-gradient(to bottom, #3b82f6, #1d4ed8)';
+                    btn.innerHTML = `<span>${type}</span><div class="rivet top-left"></div><div class="rivet top-right"></div><div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>`;
+                    btn.draggable = true;
+                    btn.dataset.type = type;
+
+                    btn.addEventListener('dragstart', (e) => {
+                        e.dataTransfer.setData('text/plain', type);
+                        const ghost = document.createElement('div');
+                        ghost.id = 'drag-ghost';
+                        ghost.className = 'node-body';
+                        ghost.style.backgroundImage = 'linear-gradient(to bottom, #3b82f6, #1d4ed8)';
+                        ghost.innerHTML = `<span>${type}</span>`;
+                        ghost.style.width = '150px';
+                        ghost.style.height = '50px';
+                        document.body.appendChild(ghost);
+                        e.dataTransfer.setDragImage(ghost, 75, 25);
+                        setTimeout(() => ghost.remove(), 0);
+                    });
+
+                    machineButtonsContainer.appendChild(btn);
+                });
+                
+                toggleBtn.addEventListener('click', () => controlPanel.classList.toggle('collapsed'));
+
+                // Guide Modal Logic
+                const guideShown = localStorage.getItem('factoryBuilderGuideShown');
+                if (!guideShown) guideModal.classList.remove('hidden');
+
+                const closeGuide = () => {
+                    if (dontShowAgainCheckbox.checked) localStorage.setItem('factoryBuilderGuideShown', 'true');
+                    guideModal.classList.add('hidden');
+                };
+                closeGuideBtn.addEventListener('click', closeGuide);
+                guideModal.addEventListener('click', (e) => { if (e.target === guideModal) closeGuide(); });
+                helpBtn.addEventListener('click', () => guideModal.classList.remove('hidden'));
+            };
+            
+            // --- HISTORY (UNDO/REDO) ---
+            const updateUndoRedoButtons = () => {
+                undoBtn.disabled = AppState.undoStack.length <= 1;
+                redoBtn.disabled = AppState.redoStack.length === 0;
+            };
+
+            const getCurrentState = () => {
+                const nodes = [];
+                g.querySelectorAll('g.node').forEach(nodeEl => {
+                    const pos = getNodeTranslation(nodeEl);
+                    nodes.push({ 
+                        id: nodeEl.dataset.id, type: nodeEl.dataset.type, label: nodeEl.dataset.label, 
+                        x: pos.x, y: pos.y,
+                        width: parseInt(nodeEl.dataset.width), height: parseInt(nodeEl.dataset.height) 
+                    });
+                });
+                const edges = [];
+                g.querySelectorAll('g.edge').forEach(edgeEl => {
+                    const path = edgeEl.querySelector('path.connector');
+                    edges.push({
+                        source: path.dataset.source, sourceHandle: path.dataset.sourceHandle,
+                        target: path.dataset.target, targetHandle: path.dataset.targetHandle,
+                        waypoints: JSON.parse(path.dataset.waypoints || '[]')
+                    });
+                });
+                return { nodes, edges, transform: { ...AppState.transform }, nodeCounter: AppState.nodeCounter, edgeCounter: AppState.edgeCounter };
+            };
+
+            const saveState = () => {
+                AppState.redoStack = [];
+                AppState.undoStack.push(getCurrentState());
+                if (AppState.undoStack.length > HISTORY_LIMIT) {
+                    AppState.undoStack.shift();
+                }
+                updateUndoRedoButtons();
+            };
+            
+            const restoreState = (state) => {
+                if (!state || !state.nodes || !state.edges) return;
+                g.innerHTML = '';
+                deselectAll();
+
+                AppState.nodeCounter = state.nodeCounter || 0;
+                AppState.edgeCounter = state.edgeCounter || 0;
+
+                state.nodes.forEach(nodeData => createNode(nodeData.id, nodeData.type, nodeData.label, nodeData.x, nodeData.y, nodeData.width, nodeData.height));
+                state.edges.forEach(edgeData => createEdge(edgeData.source, edgeData.sourceHandle, edgeData.target, edgeData.targetHandle, edgeData.waypoints, false)); // Don't save history during restore
+
+                g.querySelectorAll('g.node').forEach(node => updateNodeColors(node.dataset.id));
+                AppState.transform = state.transform || { x: 0, y: 0, scale: 1 };
+                updateTransform();
+            };
+            
+            const undo = () => {
+                if (AppState.undoStack.length <= 1) return;
+                AppState.redoStack.push(AppState.undoStack.pop());
+                restoreState(AppState.undoStack[AppState.undoStack.length - 1]);
+                updateUndoRedoButtons();
+            };
+
+            const redo = () => {
+                if (AppState.redoStack.length === 0) return;
+                const stateToRestore = AppState.redoStack.pop();
+                AppState.undoStack.push(stateToRestore);
+                restoreState(stateToRestore);
+                updateUndoRedoButtons();
+            };
+
+            // --- UI & FEEDBACK ---
+            const updateEditButtonsState = () => {
+                const isNodeSelected = AppState.selectedItem && AppState.selectedItem.classList.contains('node');
+                copyBtn.disabled = !isNodeSelected;
+                duplicateBtn.disabled = !isNodeSelected;
+                pasteBtn.disabled = !AppState.clipboard;
+            };
+
+            const showToast = (message) => {
+                toast.textContent = message;
+                toast.classList.remove('opacity-0', 'translate-y-5');
+                setTimeout(() => toast.classList.add('opacity-0', 'translate-y-5'), 2000);
+            };
+
+            const showConfirm = (title, text, onConfirm) => {
+                confirmTitle.textContent = title;
+                confirmText.textContent = text;
+                confirmCallback = onConfirm;
+                confirmModal.classList.remove('hidden');
+            };
+
+            const hideConfirm = () => {
+                confirmModal.classList.add('hidden');
+                confirmCallback = null;
+            };
+
+            // --- SELECTION & TRANSFORMATION ---
+            const updateTransform = () => {
+                 g.setAttribute('transform', `translate(${AppState.transform.x}, ${AppState.transform.y}) scale(${AppState.transform.scale})`);
+            };
+            
+            const deselectAll = () => {
+                if (AppState.selectedItem) {
+                    AppState.selectedItem.classList.remove('selected');
+                    if (AppState.selectedItem.classList.contains('node')) {
+                        removeResizeHandles(AppState.selectedItem);
+                    }
+                    const edgeGroup = AppState.selectedItem.closest('g.edge');
+                    if(edgeGroup) {
+                         updateEdgeArrows(edgeGroup);
+                    }
+                }
+                AppState.selectedItem = null;
+                updateEditButtonsState();
+            };
+
+            const selectItem = (element) => {
+                deselectAll();
+                AppState.selectedItem = element;
+                AppState.selectedItem.classList.add('selected');
+                
+                if (element.classList.contains('node')) {
+                    addResizeHandles(element);
+                }
+                
+                const edgeGroup = AppState.selectedItem.closest('g.edge');
+                if (edgeGroup) {
+                    updateEdgeArrows(edgeGroup);
+                }
+                updateEditButtonsState();
+            };
+
+            // --- RENDERING & UPDATES ---
+            const addNode = (type, label, x, y, width = 150, height = 50) => {
+                const id = `node_${AppState.nodeCounter++}`;
+                if (x === undefined || y === undefined) {
+                    const canvasRect = canvasContainer.getBoundingClientRect();
+                    x = (canvasRect.width / 2 - AppState.transform.x) / AppState.transform.scale;
+                    y = (canvasRect.height / 2 - AppState.transform.y) / AppState.transform.scale;
+                }
+                createNode(id, type, label, x, y, width, height);
+            };
+
+            const createNode = (id, type, label, x, y, width = 150, height = 50) => {
+                const nodeGroup = document.createElementNS(svgNS, 'g');
+                nodeGroup.classList.add('node');
+                nodeGroup.setAttribute('transform', `translate(${x}, ${y})`);
+                nodeGroup.dataset.id = id;
+                nodeGroup.dataset.type = type;
+                nodeGroup.dataset.label = label;
+                nodeGroup.dataset.width = width;
+                nodeGroup.dataset.height = height;
+                
+                const foreignObject = document.createElementNS(svgNS, 'foreignObject');
+                foreignObject.classList.add('node-foreign-object');
+                foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="node-body">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    <span>${label}</span>
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </div>`;
+                
+                nodeGroup.appendChild(foreignObject);
+                updateNodeAppearance(nodeGroup);
+
+                nodeGroup.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectItem(nodeGroup);
+                });
+
+                nodeGroup.addEventListener('dblclick', () => {
+                    const newLabel = prompt('Enter new label:', nodeGroup.dataset.label);
+                    if (newLabel) {
+                        nodeGroup.dataset.label = newLabel;
+                        nodeGroup.querySelector('.node-body span').textContent = newLabel;
+                        updateAllEdgesForNode(id);
+                        updateNodeColors(id);
+                        saveState();
+                    }
+                });
+                
+                g.appendChild(nodeGroup);
+                updateNodeColors(id); // Set initial color
+                return nodeGroup;
+            };
+            
+            const updateNodeAppearance = (nodeEl) => {
+                const width = parseInt(nodeEl.dataset.width);
+                const height = parseInt(nodeEl.dataset.height);
+
+                const foreignObject = nodeEl.querySelector('foreignObject');
+                foreignObject.setAttribute('x', -width / 2);
+                foreignObject.setAttribute('y', -height / 2);
+                foreignObject.setAttribute('width', width);
+                foreignObject.setAttribute('height', height);
+
+                // Clear old handles and generate new ones
+                nodeEl.querySelectorAll('.handle').forEach(h => h.remove());
+
+                // Top and Bottom handles
+                const numXHandles = Math.max(1, Math.floor(width / handleSpacing));
+                for (let i = 0; i < numXHandles; i++) {
+                    const spacing = width / (numXHandles > 1 ? numXHandles - 1 : 1);
+                    const handleX = (numXHandles > 1) ? (-width / 2) + spacing * i : 0;
+                    ['top', 'bottom'].forEach(side => {
+                        const handle = document.createElementNS(svgNS, 'circle');
+                        handle.setAttribute('cx', handleX);
+                        handle.setAttribute('cy', side === 'top' ? -height / 2 : height / 2);
+                        handle.setAttribute('r', 8);
+                        handle.classList.add('handle');
+                        handle.dataset.nodeId = nodeEl.dataset.id;
+                        handle.dataset.handlePos = `${side}-${i}`;
+                        nodeEl.appendChild(handle);
+                    });
+                }
+
+                // Left and Right handles
+                const numYHandles = Math.max(1, Math.floor(height / handleSpacing));
+                 for (let i = 0; i < numYHandles; i++) {
+                    const spacing = height / (numYHandles > 1 ? numYHandles - 1 : 1);
+                    const handleY = (numYHandles > 1) ? (-height / 2) + spacing * i : 0;
+                     ['left', 'right'].forEach(side => {
+                        const handle = document.createElementNS(svgNS, 'circle');
+                        handle.setAttribute('cx', side === 'left' ? -width/2 : width/2);
+                        handle.setAttribute('cy', handleY);
+                        handle.setAttribute('r', 8);
+                        handle.classList.add('handle');
+                        handle.dataset.nodeId = nodeEl.dataset.id;
+                        handle.dataset.handlePos = `${side}-${i}`;
+                        nodeEl.appendChild(handle);
+                    });
+                }
+
+                updateAllEdgesForNode(nodeEl.dataset.id);
+                if (nodeEl.classList.contains('selected')) {
+                    updateResizeHandles(nodeEl);
+                }
+            };
+
+            const throttledUpdateNodeAppearance = throttle(updateNodeAppearance, 16);
+
+            const addResizeHandles = (nodeEl) => {
+                const handleSize = 10;
+                const corners = {
+                    'top-left': 'nesw-cursor', 
+                    'top-right': 'nwse-cursor', 
+                    'bottom-left': 'nwse-cursor', 
+                    'bottom-right': 'nesw-cursor'
+                };
+
+                for(const corner in corners) {
+                    const handle = document.createElementNS(svgNS, 'rect');
+                    handle.classList.add('resize-handle', corners[corner]);
+                    handle.dataset.corner = corner;
+                    handle.setAttribute('width', handleSize);
+                    handle.setAttribute('height', handleSize);
+                    nodeEl.appendChild(handle);
+                }
+                updateResizeHandles(nodeEl);
+            };
+
+            const updateResizeHandles = (nodeEl) => {
+                const width = parseInt(nodeEl.dataset.width);
+                const height = parseInt(nodeEl.dataset.height);
+                const handleSize = 10;
+
+                nodeEl.querySelectorAll('.resize-handle').forEach(handle => {
+                    const corner = handle.dataset.corner;
+                    let x, y;
+                    if (corner.includes('left')) x = -width / 2 - handleSize / 2;
+                    else x = width / 2 - handleSize / 2;
+
+                    if (corner.includes('top')) y = -height / 2 - handleSize / 2;
+                    else y = height / 2 - handleSize / 2;
+                    
+                    handle.setAttribute('x', x);
+                    handle.setAttribute('y', y);
+                });
+            };
+
+            const removeResizeHandles = (nodeEl) => {
+                nodeEl.querySelectorAll('.resize-handle').forEach(h => h.remove());
+            };
+
+            const createEdge = (sourceId, sourceHandle, targetId, targetHandle, waypoints = [], saveHistory = true) => {
+                const edgeGroup = document.createElementNS(svgNS, 'g');
+                edgeGroup.classList.add('edge');
+
+                const hitbox = document.createElementNS(svgNS, 'path');
+                hitbox.classList.add('connector-hitbox');
+                edgeGroup.appendChild(hitbox);
+                
+                const casing = document.createElementNS(svgNS, 'path');
+                casing.classList.add('connector-casing');
+                edgeGroup.appendChild(casing);
+
+                const path = document.createElementNS(svgNS, 'path');
+                path.classList.add('connector');
+                path.dataset.source = sourceId;
+                path.dataset.sourceHandle = sourceHandle;
+                path.dataset.target = targetId;
+                path.dataset.targetHandle = targetHandle;
+                path.dataset.waypoints = JSON.stringify(waypoints);
+                edgeGroup.appendChild(path);
+
+                hitbox.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    selectItem(edgeGroup);
+                });
+
+                 hitbox.addEventListener('dblclick', (e) => {
+                    e.stopPropagation();
+                    const pt = new DOMPoint(e.clientX, e.clientY);
+                    const svgP = pt.matrixTransform(g.getScreenCTM().inverse());
+                    addWaypointToEdge(path, {x: svgP.x, y: svgP.y});
+                });
+                
+                g.prepend(edgeGroup);
+                
+                renderWaypoints(path);
+                updateEdge(edgeGroup);
+                updateNodeColors(sourceId);
+                updateNodeColors(targetId);
+                if (saveHistory) saveState();
+            };
+
+            const addWaypointToEdge = (path, coords) => {
+                 const waypoints = JSON.parse(path.dataset.waypoints);
+                 waypoints.push(coords);
+                 path.dataset.waypoints = JSON.stringify(waypoints);
+                 renderWaypoints(path);
+                 updateEdge(path.parentElement);
+                 saveState();
+            };
+
+            const renderWaypoints = (path) => {
+                const edgeGroup = path.parentElement;
+                edgeGroup.querySelectorAll('.waypoint').forEach(w => w.remove());
+                const waypoints = JSON.parse(path.dataset.waypoints);
+
+                waypoints.forEach((waypoint, index) => {
+                    const circle = document.createElementNS(svgNS, 'circle');
+                    circle.setAttribute('cx', waypoint.x);
+                    circle.setAttribute('cy', waypoint.y);
+                    circle.setAttribute('r', 6);
+                    circle.classList.add('waypoint');
+                    circle.dataset.waypointIndex = index;
+
+                    circle.addEventListener('click', e => {
+                        e.stopPropagation();
+                        selectItem(circle);
+                    });
+                    edgeGroup.appendChild(circle);
+                });
+            };
+
+             const getHandleCoords = (node, handleId) => {
+                if (!node || !handleId) return {x: 0, y: 0};
+                const pos = getNodeTranslation(node);
+                const width = parseInt(node.dataset.width);
+                const height = parseInt(node.dataset.height);
+                const [side, indexStr] = handleId.split('-');
+                const index = parseInt(indexStr);
+
+                const coords = { x: pos.x, y: pos.y };
+
+                if (side === 'top' || side === 'bottom') {
+                    const numHandles = Math.max(1, Math.floor(width / handleSpacing));
+                    const spacing = width / (numHandles > 1 ? numHandles - 1 : 1);
+                    coords.x += (numHandles > 1) ? (-width / 2) + spacing * index : 0;
+                    coords.y += (side === 'top' ? -height / 2 : height / 2);
+                } else if (side === 'left' || side === 'right') {
+                    const numHandles = Math.max(1, Math.floor(height / handleSpacing));
+                    const spacing = height / (numHandles > 1 ? numHandles - 1 : 1);
+                    coords.y += (numHandles > 1) ? (-height / 2) + spacing * index : 0;
+                    coords.x += (side === 'left' ? -width / 2 : width / 2);
+                }
+                return coords;
+            };
+
+            const updateEdge = (edgeGroup) => {
+                if (!edgeGroup) return;
+                const path = edgeGroup.querySelector('.connector');
+                const casing = edgeGroup.querySelector('.connector-casing');
+                const hitbox = edgeGroup.querySelector('.connector-hitbox');
+
+                if (!path || !path.dataset) return;
+
+                const { source, target } = path.dataset;
+                const sourceNode = g.querySelector(`g[data-id="${source}"]`);
+                const targetNode = g.querySelector(`g[data-id="${target}"]`);
+
+                if (!sourceNode || !targetNode) { if(edgeGroup.parentElement) edgeGroup.remove(); return; }
+
+                const points = [
+                    getHandleCoords(sourceNode, path.dataset.sourceHandle),
+                    ...JSON.parse(path.dataset.waypoints),
+                    getHandleCoords(targetNode, path.dataset.targetHandle)
+                ];
+                
+                let pathData = `M ${points[0].x} ${points[0].y}`;
+                for (let i = 0; i < points.length - 1; i++) {
+                    const p1 = points[i];
+                    const p2 = points[i + 1];
+                    const midX = p1.x + (p2.x - p1.x) / 2;
+                    pathData += ` L ${midX} ${p1.y} L ${midX} ${p2.y} L ${p2.x} ${p2.y}`;
+                }
+                path.setAttribute('d', pathData);
+                if (casing) casing.setAttribute('d', pathData);
+                if (hitbox) hitbox.setAttribute('d', pathData);
+
+                generateEdgeArrows(edgeGroup);
+            };
+            
+            const updateAllEdgesForNode = (nodeId) => {
+                g.querySelectorAll(`path[data-source="${nodeId}"], path[data-target="${nodeId}"]`).forEach(path => updateEdge(path.parentElement));
+            };
+            const throttledUpdateAllEdges = throttle(updateAllEdgesForNode, 16);
+
+             const generateEdgeArrows = (edgeGroup) => {
+                if (!edgeGroup) return;
+                edgeGroup.querySelectorAll('.moving-arrow, animateMotion').forEach(el => el.remove());
+                const path = edgeGroup.querySelector('.connector');
+                if (!path) return;
+
+                const totalLength = path.getTotalLength();
+                if (totalLength === 0) return;
+
+                const arrowSize = 14; 
+                const arrowSpacing = 60;
+                const numArrows = Math.max(1, Math.floor(totalLength / arrowSpacing));
+                const speed = 50; // pixels per second
+                const duration = totalLength / speed;
+
+                for (let i = 0; i < numArrows; i++) {
+                    const arrow = document.createElementNS(svgNS, 'path');
+                    arrow.setAttribute('d', `M 0 -${arrowSize/2.5} L ${arrowSize} 0 L 0 ${arrowSize/2.5} z`);
+                    arrow.classList.add('moving-arrow');
+                    
+                    const animate = document.createElementNS(svgNS, 'animateMotion');
+                    animate.setAttribute('dur', `${duration}s`);
+                    animate.setAttribute('repeatCount', 'indefinite');
+                    animate.setAttribute('rotate', 'auto');
+                    
+                    const mpath = document.createElementNS(svgNS, 'mpath');
+                    const pathId = path.id || (path.id = `path_${AppState.edgeCounter++}`);
+                    mpath.setAttributeNS('http://www.w3.org/1999/xlink', 'href', `#${pathId}`);
+                    
+                    animate.appendChild(mpath);
+                    arrow.appendChild(animate);
+                    edgeGroup.insertBefore(arrow, path);
+                     setTimeout(() => {
+                        if (document.body.contains(animate)) {
+                             animate.setAttribute('begin', `${(i / numArrows) * -duration}s`);
+                        }
+                    }, 10);
+                }
+                updateEdgeArrows(edgeGroup);
+            };
+
+            const updateEdgeArrows = (edgeGroup) => {
+                if (!edgeGroup) return false;
+                let arrowColor = '#64748b';
+                const sourceNode = g.querySelector(`g[data-id="${edgeGroup.querySelector('.connector').dataset.source}"]`);
+                if (sourceNode) {
+                    const sourceLabel = sourceNode.dataset.label.toLowerCase();
+                    if (sourceLabel.includes('water')) {
+                        edgeGroup.classList.add('water-pipe');
+                        arrowColor = '#3b82f6';
+                    } else if (sourceLabel.includes('lava')) {
+                        edgeGroup.classList.add('lava-pipe');
+                        arrowColor = '#f97316';
+                    }
+                }
+                if (edgeGroup.classList.contains('selected')) {
+                    arrowColor = '#0891b2';
+                }
+                edgeGroup.querySelectorAll('.moving-arrow').forEach(a => a.setAttribute('fill', arrowColor));
+                return true;
+            };
+
+            const updateNodeColors = (nodeId) => {
+                const node = g.querySelector(`g[data-id="${nodeId}"]`);
+                if (!node) return;
+                const nodeBody = node.querySelector('.node-body');
+
+                if (node.dataset.type === 'process') {
+                    nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #3b82f6, #1d4ed8)';
+                } else if (node.dataset.type === 'vault') {
+                    nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #6b7280, #4b5563)';
+                } else if (node.dataset.type === 'ingredient') {
+                    const incoming = g.querySelectorAll(`path[data-target="${nodeId}"]`).length > 0;
+                    const outgoing = g.querySelectorAll(`path[data-source="${nodeId}"]`).length > 0;
+                    
+                    if (incoming && outgoing) {
+                        nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #eab308, #ca8a04)'; // Intermediate
+                    } else if (incoming) {
+                        nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #ef4444, #b91c1c)'; // Output
+                    } else {
+                         nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #22c55e, #166534)'; // Input (default)
+                    }
+                }
+            };
+
+            // --- EVENT HANDLERS ---
+            confirmOkBtn.addEventListener('click', () => {
+                if(confirmCallback) confirmCallback();
+                hideConfirm();
+            });
+            confirmCancelBtn.addEventListener('click', hideConfirm);
+
+            addIngredientBtn.addEventListener('click', () => {
+                const value = ingredientSearch.value;
+                if (value) {
+                    addNode('ingredient', value);
+                    ingredientSearch.value = '';
+                    saveState();
+                }
+            });
+
+            addVaultBtn.addEventListener('click', () => {
+                addNode('vault', 'Vault');
+                saveState();
+            });
+
+            clearBtn.addEventListener('click', () => {
+                 showConfirm('Clear Canvas', 'Are you sure you want to clear the entire canvas?', () => {
+                    g.innerHTML = '';
+                    AppState.nodeCounter = 0;
+                    AppState.selectedItem = null;
+                    saveState();
+                    showToast('Canvas Cleared!');
+                });
+            });
+
+            ingredientSearch.addEventListener('input', () => {
+                const text = ingredientSearch.value.trim().toLowerCase();
+                if (text === '') { autocompleteList.classList.add('hidden'); return; }
+                const filteredItems = itemList.filter(item => item.toLowerCase().includes(text)).slice(0, 5);
+                showSuggestions(filteredItems);
+            });
+            ingredientSearch.addEventListener('focus', () => ingredientSearch.dispatchEvent(new Event('input')));
+            ingredientSearch.addEventListener('blur', () => setTimeout(() => autocompleteList.classList.add('hidden'), 150));
+
+             const showSuggestions = (filteredItems) => {
+                autocompleteList.innerHTML = '';
+                if (filteredItems.length === 0) { autocompleteList.classList.add('hidden'); return; }
+                filteredItems.forEach(item => {
+                    const itemEl = document.createElement('div');
+                    itemEl.className = 'autocomplete-item';
+                    itemEl.textContent = item;
+                    itemEl.addEventListener('mousedown', (e) => { e.preventDefault(); ingredientSearch.value = item; autocompleteList.classList.add('hidden'); });
+                    autocompleteList.appendChild(itemEl);
+                });
+                autocompleteList.classList.remove('hidden');
+            };
+
+            svgCanvas.addEventListener('mousedown', (e) => {
+                const mouseInSVG = screenToSvg(e.clientX, e.clientY);
+
+                if (e.button === 2) return; // Ignore right-clicks for dragging etc.
+                hideContextMenu();
+
+                if (e.target.classList.contains('resize-handle')) {
+                    e.stopPropagation();
+                    AppState.isResizing = true;
+                    AppState.activeElement = e.target.closest('g.node');
+                    AppState.resizeInfo = {
+                        corner: e.target.dataset.corner,
+                        initialMouse: mouseInSVG,
+                        initialPos: getNodeTranslation(AppState.activeElement),
+                        initialSize: { 
+                            width: parseInt(AppState.activeElement.dataset.width), 
+                            height: parseInt(AppState.activeElement.dataset.height) 
+                        }
+                    };
+                    return;
+                }
+                
+                if (AppState.isConnecting) {
+                    if (e.target.classList.contains('handle')) { // Finish connection
+                         const targetNodeId = e.target.dataset.nodeId;
+                         const targetHandle = e.target.dataset.handlePos;
+                         if (targetNodeId !== AppState.connectionSource.nodeId) {
+                            createEdge(AppState.connectionSource.nodeId, AppState.connectionSource.handle, targetNodeId, targetHandle, AppState.tempWaypoints);
+                         }
+                         // Reset after finishing
+                        AppState.tempLine.remove();
+                        AppState.isConnecting = false; AppState.tempLine = null; AppState.tempWaypoints = [];
+                    } else { // Add waypoint
+                        AppState.tempWaypoints.push({x: mouseInSVG.x, y: mouseInSVG.y});
+                    }
+                    return; 
+                }
+
+                if (e.target.classList.contains('handle')) {
+                    AppState.isConnecting = true;
+                    AppState.connectionSource.nodeId = e.target.dataset.nodeId;
+                    AppState.connectionSource.handle = e.target.dataset.handlePos;
+                    AppState.tempLine = document.createElementNS(svgNS, 'path');
+                    AppState.tempLine.setAttribute('stroke', '#0891b2');
+                    AppState.tempLine.setAttribute('stroke-width', '3');
+                    AppState.tempLine.setAttribute('fill', 'none');
+                    AppState.tempLine.style.pointerEvents = 'none';
+                    g.appendChild(AppState.tempLine);
+                    e.stopPropagation(); return;
+                }
+
+                if (e.target.classList.contains('waypoint')) {
+                    AppState.activeElement = e.target;
+                    selectItem(AppState.activeElement);
+                } else {
+                    const nodeBody = e.target.closest('.node-body');
+                    if (nodeBody) {
+                        AppState.activeElement = nodeBody.closest('g');
+                        selectItem(AppState.activeElement);
+                    }
+                }
+                
+                if (AppState.activeElement) {
+                    if (AppState.activeElement.classList.contains('waypoint')) { // Waypoint
+                        AppState.dragOffset.x = mouseInSVG.x - parseFloat(AppState.activeElement.getAttribute('cx'));
+                        AppState.dragOffset.y = mouseInSVG.y - parseFloat(AppState.activeElement.getAttribute('cy'));
+                    } else { // Node
+                        const nodePos = getNodeTranslation(AppState.activeElement);
+                        AppState.dragOffset.x = mouseInSVG.x - nodePos.x;
+                        AppState.dragOffset.y = mouseInSVG.y - nodePos.y;
+                    }
+                    return;
+                }
+
+                 const edgeHitbox = e.target.closest('.connector-hitbox');
+                if (edgeHitbox) {
+                    selectItem(edgeHitbox.parentElement);
+                    return;
+                }
+
+                if(e.target === svgCanvas || e.target.closest('rect')) {
+                    deselectAll();
+                }
+            });
+
+            svgCanvas.addEventListener('mousemove', (e) => {
+                const mouseInSVG = screenToSvg(e.clientX, e.clientY);
+                
+                document.querySelectorAll('.handle.highlight').forEach(h => h.classList.remove('highlight'));
+                if (AppState.isResizing) {
+                    e.preventDefault();
+                    const dx = mouseInSVG.x - AppState.resizeInfo.initialMouse.x;
+                    const dy = mouseInSVG.y - AppState.resizeInfo.initialMouse.y;
+                    
+                    let newWidth = AppState.resizeInfo.initialSize.width;
+                    let newHeight = AppState.resizeInfo.initialSize.height;
+
+                    if (AppState.resizeInfo.corner.includes('right')) newWidth += dx;
+                    else newWidth -= dx;
+
+                    if (AppState.resizeInfo.corner.includes('bottom')) newHeight += dy;
+                    else newHeight -= dy;
+                    
+                    // Constrain and snap
+                    const minWidth = 75;
+                    const minHeight = 50;
+                    newWidth = Math.max(minWidth, Math.round(newWidth / (snapGridSize/2)) * (snapGridSize/2));
+                    newHeight = Math.max(minHeight, Math.round(newHeight / (snapGridSize/2)) * (snapGridSize/2));
+                    
+                    const actualDx = (AppState.resizeInfo.corner.includes('right')) 
+                        ? newWidth - AppState.resizeInfo.initialSize.width 
+                        : AppState.resizeInfo.initialSize.width - newWidth;
+                    const actualDy = (AppState.resizeInfo.corner.includes('bottom')) 
+                        ? newHeight - AppState.resizeInfo.initialSize.height 
+                        : AppState.resizeInfo.initialSize.height - newHeight;
+
+                    const newX = AppState.resizeInfo.initialPos.x + actualDx / 2;
+                    const newY = AppState.resizeInfo.initialPos.y + actualDy / 2;
+                    
+                    AppState.activeElement.dataset.width = newWidth;
+                    AppState.activeElement.dataset.height = newHeight;
+                    AppState.activeElement.setAttribute('transform', `translate(${newX}, ${newY})`);
+                    throttledUpdateNodeAppearance(AppState.activeElement);
+                    return;
+                }
+                
+                if (AppState.isConnecting) {
+                     if (e.target.classList.contains('handle')) {
+                        e.target.classList.add('highlight');
+                    }
+                    const sourceNode = g.querySelector(`g[data-id="${AppState.connectionSource.nodeId}"]`);
+                    const start = getHandleCoords(sourceNode, AppState.connectionSource.handle);
+                    
+                    const points = [start, ...AppState.tempWaypoints, {x: mouseInSVG.x, y: mouseInSVG.y}];
+                    let pathData = `M ${points[0].x} ${points[0].y}`;
+                    for (let i = 0; i < points.length - 1; i++) {
+                        const p1 = points[i];
+                        const p2 = points[i + 1];
+                        const midX = p1.x + (p2.x - p1.x) / 2;
+                        pathData += ` L ${midX} ${p1.y} L ${midX} ${p2.y} L ${p2.x} ${p2.y}`;
+                    }
+                    AppState.tempLine.setAttribute('d', pathData);
+                }
+
+                if (AppState.activeElement) {
+                    e.preventDefault();
+                    let newX = Math.round((mouseInSVG.x - AppState.dragOffset.x) / snapGridSize) * snapGridSize;
+                    let newY = Math.round((mouseInSVG.y - AppState.dragOffset.y) / snapGridSize) * snapGridSize;
+
+                    if (AppState.activeElement.classList.contains('waypoint')) { // Waypoint
+                         AppState.activeElement.setAttribute('cx', newX);
+                         AppState.activeElement.setAttribute('cy', newY);
+                         const path = AppState.activeElement.closest('g.edge').querySelector('path.connector');
+                         const waypoints = JSON.parse(path.dataset.waypoints);
+                         const index = parseInt(AppState.activeElement.dataset.waypointIndex);
+                         waypoints[index] = {x: newX, y: newY};
+                         path.dataset.waypoints = JSON.stringify(waypoints);
+                         updateEdge(path.parentElement);
+                    } else { // Node
+                        AppState.activeElement.setAttribute('transform', `translate(${newX}, ${newY})`);
+                        throttledUpdateAllEdges(AppState.activeElement.dataset.id);
+                    }
+                }
+            });
+
+            svgCanvas.addEventListener('mouseup', (e) => {
+                 if (AppState.isResizing || (AppState.activeElement && !AppState.isConnecting)) {
+                    // Final full update after throttled move/resize
+                    if (AppState.isResizing) updateNodeAppearance(AppState.activeElement);
+                    else if (AppState.activeElement) updateAllEdgesForNode(AppState.activeElement.dataset.id);
+                    saveState();
+                 }
+                 if (AppState.isResizing) {
+                    AppState.isResizing = false;
+                    AppState.resizeInfo = {};
+                 }
+                 if (!AppState.isConnecting) { 
+                    AppState.activeElement = null;
+                 }
+            });
+
+            window.addEventListener('keydown', (e) => {
+                 if (e.ctrlKey && e.key.toLowerCase() === 'z') {
+                    e.preventDefault();
+                    undo();
+                    return;
+                }
+                 if (e.ctrlKey && e.key.toLowerCase() === 'y' || (e.ctrlKey && e.shiftKey && e.key.toLowerCase() === 'z')) {
+                    e.preventDefault();
+                    redo();
+                    return;
+                }
+
+                // Copy
+                if (e.ctrlKey && e.key.toLowerCase() === 'c') {
+                    e.preventDefault();
+                    copySelection();
+                    return;
+                }
+
+                // Paste
+                if (e.ctrlKey && e.key.toLowerCase() === 'v') {
+                    e.preventDefault();
+                    pasteFromClipboard();
+                    return;
+                }
+                
+                // Duplicate
+                if (e.ctrlKey && e.key.toLowerCase() === 'd') {
+                     e.preventDefault();
+                     duplicateSelection();
+                     return;
+                }
+
+                 if (e.key === 'Escape' && AppState.isConnecting) {
+                    AppState.tempLine.remove();
+                    AppState.isConnecting = false; AppState.tempLine = null; AppState.tempWaypoints = [];
+                 }
+                if (e.key === 'Delete' || e.key === 'Backspace') {
+                    if (document.activeElement.tagName === 'INPUT') return;
+                    e.preventDefault();
+                    deleteSelection(AppState.selectedItem);
+                }
+            });
+
+             window.addEventListener('beforeunload', (e) => {
+                const hasNodes = g.querySelector('g.node');
+                if (hasNodes) {
+                    e.preventDefault();
+                    e.returnValue = 'Are you sure you want to leave? Your changes will be lost.';
+                    return 'Are you sure you want to leave? Your changes will be lost.';
+                }
+            });
+
+
+            let isPanning = false; let lastMousePos = { x: 0, y: 0 };
+            canvasContainer.addEventListener('mousedown', (e) => {
+                if (AppState.isConnecting || AppState.isResizing || e.target.closest('.node-body') || e.target.closest('.handle') || e.target.closest('.waypoint') || e.target.closest('.connector-hitbox') || e.button === 2) return;
+                isPanning = true; lastMousePos = { x: e.clientX, y: e.clientY }; canvasContainer.style.cursor = 'grabbing';
+            });
+            window.addEventListener('mousemove', (e) => {
+                AppState.lastMouseCoords = { x: e.clientX, y: e.clientY };
+                if (AppState.isResizing) return; // Prevent panning while resizing
+                if(isPanning) {
+                    const dx = e.clientX - lastMousePos.x; const dy = e.clientY - lastMousePos.y;
+                    AppState.transform.x += dx; AppState.transform.y += dy;
+                    lastMousePos = { x: e.clientX, y: e.clientY }; updateTransform();
+                }
+            });
+            window.addEventListener('mouseup', () => { isPanning = false; canvasContainer.style.cursor = 'default'; });
+            window.addEventListener('mouseleave', () => { isPanning = false; AppState.activeElement = null; canvasContainer.style.cursor = 'default'; });
+            canvasContainer.addEventListener('wheel', (e) => {
+                e.preventDefault(); zoom(e.deltaY > 0 ? 'out' : 'in', e.clientX, e.clientY);
+            });
+
+            // --- API (IMPORT/EXPORT) & ACTIONS ---
+            const copySelection = () => {
+                if (AppState.selectedItem && AppState.selectedItem.classList.contains('node')) {
+                    AppState.clipboard = {
+                        type: AppState.selectedItem.dataset.type,
+                        label: AppState.selectedItem.dataset.label,
+                        width: parseInt(AppState.selectedItem.dataset.width),
+                        height: parseInt(AppState.selectedItem.dataset.height)
+                    };
+                    showToast('Node copied!');
+                    updateEditButtonsState();
+                }
+            };
+
+            const pasteFromClipboard = () => {
+                if (AppState.clipboard) {
+                    const { x, y } = screenToSvg(AppState.lastMouseCoords.x, AppState.lastMouseCoords.y);
+                    addNode(AppState.clipboard.type, AppState.clipboard.label, x, y, AppState.clipboard.width, AppState.clipboard.height);
+                    saveState();
+                }
+            };
+
+            const duplicateSelection = () => {
+                 if (AppState.selectedItem && AppState.selectedItem.classList.contains('node')) {
+                    const pos = getNodeTranslation(AppState.selectedItem);
+                    addNode(
+                        AppState.selectedItem.dataset.type, 
+                        AppState.selectedItem.dataset.label, 
+                        pos.x + snapGridSize, 
+                        pos.y + snapGridSize, 
+                        parseInt(AppState.selectedItem.dataset.width), 
+                        parseInt(AppState.selectedItem.dataset.height)
+                    );
+                    saveState();
+                 }
+            };
+            
+            const deleteSelection = (itemToDelete) => {
+                if (itemToDelete) {
+                    const isEdgeGroup = itemToDelete.classList.contains('edge');
+                    if (isEdgeGroup) {
+                        const { source, target } = itemToDelete.querySelector('path.connector').dataset;
+                        itemToDelete.remove();
+                        updateNodeColors(source);
+                        updateNodeColors(target);
+                    } else if (itemToDelete.tagName === 'g') { // Node
+                        const nodeId = itemToDelete.dataset.id;
+                        const connectedNodes = new Set();
+                        g.querySelectorAll(`path[data-source="${nodeId}"], path[data-target="${nodeId}"]`).forEach(path => {
+                            connectedNodes.add(path.dataset.source);
+                            connectedNodes.add(path.dataset.target);
+                            path.parentElement.remove();
+                        });
+                        itemToDelete.remove();
+                        connectedNodes.forEach(id => updateNodeColors(id));
+                    } else if (itemToDelete.classList.contains('waypoint')) { // waypoint
+                        const path = itemToDelete.closest('g.edge').querySelector('path.connector');
+                        const waypoints = JSON.parse(path.dataset.waypoints);
+                        const index = parseInt(itemToDelete.dataset.waypointIndex);
+                        waypoints.splice(index, 1);
+                        path.dataset.waypoints = JSON.stringify(waypoints);
+                        itemToDelete.remove();
+                        renderWaypoints(path);
+                        updateEdge(path.parentElement);
+                    }
+                    deselectAll();
+                    saveState();
+                }
+            }
+
+             const screenToSvg = (screenX, screenY) => {
+                 const pt = new DOMPoint(screenX, screenY);
+                 return pt.matrixTransform(g.getScreenCTM().inverse());
+            };
+
+             const getNodeTranslation = (node) => {
+                if (!node) return { x: 0, y: 0 };
+                const transformAttr = node.getAttribute('transform');
+                if (transformAttr) { const match = /translate\(([^,]+),([^)]+)\)/.exec(transformAttr); if (match) return { x: parseFloat(match[1]), y: parseFloat(match[2]) }; }
+                return { x: 0, y: 0 };
+            };
+
+            canvasContainer.addEventListener('dragover', (e) => { e.preventDefault(); });
+            canvasContainer.addEventListener('drop', (e) => {
+                e.preventDefault();
+                const type = e.dataTransfer.getData('text/plain');
+                if (Object.keys(machineTypes).includes(type)) {
+                    const svgP = screenToSvg(e.clientX, e.clientY);
+                    addNode('process', type, svgP.x, svgP.y);
+                    saveState();
+                }
+            });
+
+            exportBtn.addEventListener('click', () => {
+                const projectData = getCurrentState();
+                const dataStr = JSON.stringify(projectData, null, 2);
+                const blob = new Blob([dataStr], {type: "application/json"});
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = 'factory-plan.json';
+                a.click();
+                URL.revokeObjectURL(a.href);
+                showToast("Project Exported!");
+            });
+
+            importBtn.addEventListener('click', () => {
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.accept = '.json,application/json';
+                input.onchange = e => {
+                    const file = e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = re => {
+                        try {
+                            const data = JSON.parse(re.target.result);
+                            loadProjectData(data);
+                        } catch (error) {
+                            showToast("Error: Invalid JSON in file.");
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+                input.click();
+            });
+            
+            const loadProjectData = (projectData) => {
+                // Enhanced validation
+                if (!projectData || typeof projectData !== 'object') { showToast("Error: Invalid project file format."); return; }
+                if (!projectData.nodes || !Array.isArray(projectData.nodes)) { showToast("Error: Project file missing 'nodes' data."); return; }
+                if (!projectData.edges || !Array.isArray(projectData.edges)) { showToast("Error: Project file missing 'edges' data."); return; }
+
+                restoreState(projectData);
+                AppState.undoStack = [];
+                AppState.redoStack = [];
+                saveState(); // Save imported state as the new baseline
+                showToast("Project Loaded!");
+            };
+
+            // --- CONTEXT MENU ---
+            const hideContextMenu = () => {
+                contextMenu.classList.add('hidden');
+            }
+
+            const showContextMenu = (e, items) => {
+                contextMenu.innerHTML = '';
+                items.forEach(item => {
+                    if (item.separator) {
+                        contextMenu.appendChild(document.createElement('div')).className = 'context-menu-separator';
+                    } else {
+                        const button = document.createElement('button');
+                        button.className = 'context-menu-item';
+                        button.textContent = item.label;
+                        button.onclick = () => {
+                            item.action();
+                            hideContextMenu();
+                        };
+                        button.disabled = item.disabled || false;
+                        contextMenu.appendChild(button);
+                    }
+                });
+                contextMenu.style.left = `${e.clientX}px`;
+                contextMenu.style.top = `${e.clientY}px`;
+                contextMenu.classList.remove('hidden');
+            }
+            
+            svgCanvas.addEventListener('contextmenu', e => {
+                e.preventDefault();
+                AppState.contextTarget = e.target.closest('g.node, g.edge');
+                
+                if (AppState.contextTarget && AppState.contextTarget.classList.contains('node')) {
+                    // Node menu
+                    selectItem(AppState.contextTarget);
+                    const menuItems = [
+                        { label: 'Copy', action: copySelection, disabled: !AppState.selectedItem },
+                        { label: 'Duplicate', action: duplicateSelection, disabled: !AppState.selectedItem },
+                        { separator: true },
+                        { label: 'Delete', action: () => deleteSelection(AppState.selectedItem), disabled: !AppState.selectedItem }
+                    ];
+                    showContextMenu(e, menuItems);
+                } else if (AppState.contextTarget && AppState.contextTarget.classList.contains('edge')) {
+                    // Edge menu
+                    selectItem(AppState.contextTarget);
+                    const menuItems = [
+                         { label: 'Delete', action: () => deleteSelection(AppState.selectedItem), disabled: !AppState.selectedItem }
+                    ];
+                    showContextMenu(e, menuItems);
+                } else {
+                    // Canvas menu
+                    deselectAll();
+                    const menuItems = [
+                        { label: 'Paste', action: pasteFromClipboard, disabled: !AppState.clipboard },
+                        { separator: true },
+                        { label: 'Fit View to All', action: () => fitAllBtn.click() }
+                    ];
+                    showContextMenu(e, menuItems);
+                }
+            });
+            window.addEventListener('click', hideContextMenu);
+
+
+            // --- FINAL SETUP ---
+            const zoom = (direction, centerX, centerY) => {
+                const scaleAmount = 1.2;
+                const oldScale = AppState.transform.scale;
+                AppState.transform.scale *= (direction === 'in' ? scaleAmount : 1 / scaleAmount);
+                AppState.transform.scale = Math.max(0.1, Math.min(3, AppState.transform.scale));
+
+                const rect = canvasContainer.getBoundingClientRect();
+                const mouseX = centerX === undefined ? rect.width / 2 : centerX - rect.left;
+                const mouseY = centerY === undefined ? rect.height / 2 : centerY - rect.top;
+
+                AppState.transform.x = mouseX - (mouseX - AppState.transform.x) * (AppState.transform.scale / oldScale);
+                AppState.transform.y = mouseY - (mouseY - AppState.transform.y) * (AppState.transform.scale / oldScale);
+                updateTransform();
+            };
+            zoomInBtn.addEventListener('click', () => zoom('in'));
+            zoomOutBtn.addEventListener('click', () => zoom('out'));
+            fitAllBtn.addEventListener('click', () => {
+                const nodes = g.querySelectorAll('g.node');
+                if (nodes.length === 0) {
+                    AppState.transform = { x: 0, y: 0, scale: 1 };
+                    updateTransform();
+                    return;
+                }
+
+                let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+                nodes.forEach(node => {
+                    const pos = getNodeTranslation(node);
+                    const width = parseInt(node.dataset.width);
+                    const height = parseInt(node.dataset.height);
+                    minX = Math.min(minX, pos.x - width / 2);
+                    minY = Math.min(minY, pos.y - height / 2);
+                    maxX = Math.max(maxX, pos.x + width / 2);
+                    maxY = Math.max(maxY, pos.y + height / 2);
+                });
+                
+                const canvasRect = canvasContainer.getBoundingClientRect();
+                const padding = 100;
+                const contentWidth = maxX - minX;
+                const contentHeight = maxY - minY;
+                
+                const scaleX = (canvasRect.width - padding) / contentWidth;
+                const scaleY = (canvasRect.height - padding) / contentHeight;
+                AppState.transform.scale = Math.min(1.5, scaleX, scaleY);
+
+                AppState.transform.x = (canvasRect.width / 2) - (minX + contentWidth / 2) * AppState.transform.scale;
+                AppState.transform.y = (canvasRect.height / 2) - (minY + contentHeight / 2) * AppState.transform.scale;
+                updateTransform();
+            });
+
+            undoBtn.addEventListener('click', undo);
+            redoBtn.addEventListener('click', redo);
+            copyBtn.addEventListener('click', copySelection);
+            pasteBtn.addEventListener('click', pasteFromClipboard);
+            duplicateBtn.addEventListener('click', duplicateSelection);
+
+            init();
+            saveState();
+            updateTransform();
+            updateEditButtonsState();
+        });
+    </script>
+</body>
+</html>
+
