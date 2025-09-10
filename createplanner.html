@@ -86,7 +86,7 @@
             width: 100%;
             height: 100%;
             padding: 8px;
-            transition: border-color 0.2s, background-color 0.3s;
+            transition: border-color 0.2s, background-color 0.3s, opacity 0.3s;
             gap: 8px;
             user-select: none; /* Prevents text highlighting */
         }
@@ -129,7 +129,7 @@
             opacity: 0;
             transition: opacity 0.2s, fill 0.2s;
         }
-        g.node:hover .handle {
+        g.node:not(.ghosted):hover .handle {
             opacity: 1;
         }
         .handle:hover, .handle.highlight {
@@ -252,6 +252,61 @@
             background-color: var(--dark-metal-border);
             margin: 4px 0;
         }
+        
+        .ghosted {
+            opacity: 0.15;
+            pointer-events: none;
+        }
+        .ghosted .node-body {
+            pointer-events: none;
+        }
+
+        .chute-body {
+            flex-direction: column;
+            align-items: stretch;
+            justify-content: flex-start;
+            padding: 4px;
+        }
+        .chute-header {
+            text-align: center;
+            font-size: 1rem;
+            padding: 2px 0;
+            border-bottom: 1px solid var(--dark-metal-border);
+            margin-bottom: 4px;
+            flex-shrink: 0;
+        }
+        .chute-io-container {
+            display: flex;
+            flex-grow: 1;
+            gap: 4px;
+        }
+        .chute-io-container > div {
+            flex: 1;
+            background-color: rgba(0,0,0,0.2);
+            border-radius: 0.25rem;
+            padding: 4px;
+        }
+        .chute-io-title {
+            font-size: 0.75rem;
+            text-align: center;
+            color: #cbd5e1;
+            border-bottom: 1px solid #475569;
+            padding-bottom: 2px;
+        }
+        .chute-io-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            font-size: 0.7rem;
+            max-height: 60px;
+            overflow-y: auto;
+        }
+        .chute-io-list li {
+            padding: 2px 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 <body class="bg-gray-900 text-white h-screen w-screen overflow-hidden">
@@ -260,6 +315,23 @@
         <svg id="canvas" class="w-full h-full">
             <defs></defs>
         </svg>
+    </div>
+
+    <!-- Floor Controls -->
+    <div id="floor-controls" class="absolute bottom-4 left-4 z-10 flex items-center gap-2 bg-gray-700/50 backdrop-blur-sm p-2 rounded-lg shadow-lg">
+        <button id="floor-down-btn" title="Previous Floor" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+        </button>
+        <div class="text-center">
+            <div id="current-floor-display" class="font-bold text-lg">Floor 0</div>
+            <div>
+                <button id="add-floor-btn" title="Add New Floor Above" class="text-xs text-cyan-400 hover:text-cyan-300 transition-colors px-1">+ Add Floor</button>
+                <button id="remove-floor-btn" title="Remove Current Floor" class="text-xs text-red-400 hover:text-red-300 transition-colors px-1 disabled:opacity-50 disabled:cursor-not-allowed">- Remove Floor</button>
+            </div>
+        </div>
+        <button id="floor-up-btn" title="Next Floor" class="w-10 h-10 flex items-center justify-center rounded-md bg-gray-700 hover:bg-cyan-600 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m18 15-6-6-6 6"/></svg>
+        </button>
     </div>
 
      <!-- View Controls -->
@@ -321,13 +393,18 @@
                  </div>
             </div>
 
-            <!-- Storage -->
+            <!-- Storage & Logistics -->
             <div>
-                 <h3 class="font-semibold text-gray-200 border-b border-gray-700 pb-2 mb-2">Storage</h3>
-                 <div id="storage-buttons">
+                 <h3 class="font-semibold text-gray-200 border-b border-gray-700 pb-2 mb-2">Storage & Logistics</h3>
+                 <div class="space-y-1">
                     <button id="add-vault-btn" title="Add a Vault to the canvas" class="w-full btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #6b7280, #4b5563);">
                          <div class="rivet top-left"></div><div class="rivet top-right"></div>
                         Vault
+                        <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                    </button>
+                    <button id="add-chute-btn" title="Add a Vertical Chute to connect floors" class="w-full btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #94a3b8, #475569);">
+                         <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                        Vertical Chute
                         <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
                     </button>
                  </div>
@@ -384,11 +461,9 @@
                     <ul class="space-y-4">
                         <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M12 8v8M8 12h8"/></svg> <span><b>Adding Nodes:</b> Use the panel on the left or drag machines directly onto the canvas.</span></li>
                         <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12h16"/><path d="M4 12a4 4 0 0 1-4-4V4"/><path d="M20 12a4 4 0 0 0 4-4V4"/></svg> <span><b>Connecting Nodes:</b> Hover over a node to see its connection points. Click and drag to start drawing a conveyor.</span></li>
-                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18"/><path d="M12 6v12"/></svg> <span><b>Routing Conveyors:</b> While drawing, click on the canvas to place waypoints. Finish by dragging to another handle.</span></li>
-                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg> <span><b>Editing & Deleting:</b> Double-click a node to change its label. Select any item and press <kbd class="px-2 py-1 text-xs font-semibold text-gray-800 bg-gray-100 border border-gray-200 rounded-lg">Delete</kbd>.</span></li>
+                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 10V7a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v3"/><path d="M18 14v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3"/><line x1="12" y1="19" x2="12" y2="5"/></svg><span><b>Multi-Floor Building:</b> Use the floor controls (bottom-left) to add floors and navigate between them. Add a <b>Vertical Chute</b> to connect machines on different levels.</span></li>
                         <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.5 21.5 18 18"/><path d="m15 6-9 9"/><path d="M9 15h6v6"/><path d="M15 9V3H9"/></svg> <span><b>Resizing Nodes:</b> Click a node to select it, then drag the corner handles that appear to change its size.</span></li>
                         <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M10 4H4v6"/><path d="M20 20h-6v-6"/><path d="M14 10l10-10"/><path d="M4 20l10-10"/></svg> <span><b>Navigation:</b> Click and drag the background to pan, and use your mouse wheel to zoom.</span></li>
-                        <li class="flex items-start"><svg class="guide-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg> <span><b>Sharing Plans:</b> Use <b>Export</b> to save your design to a file, and <b>Import</b> to load one.</span></li>
                     </ul>
                 </div>
                 <div>
@@ -444,8 +519,7 @@
                         <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #eab308, #ca8a04)"></span> <b>Intermediate Node:</b> Sends and receives.</li>
                         <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #3b82f6, #1d4ed8)"></span> <b>Machine Node:</b> Processes items.</li>
                         <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #6b7280, #4b5563)"></span> <b>Vault Node:</b> Stores items.</li>
-                        <li class="flex items-center"><div class="h-1 w-4 bg-blue-500 mr-2"></div> <b>Water Conveyor</b></li>
-                        <li class="flex items-center"><div class="h-1 w-4 bg-orange-500 mr-2"></div> <b>Lava Conveyor</b></li>
+                        <li class="flex items-center"><span class="color-swatch" style="background-image: linear-gradient(to bottom, #94a3b8, #475569)"></span> <b>Vertical Chute:</b> Connects floors.</li>
                     </ul>
                 </div>
             </div>
@@ -500,9 +574,10 @@
             const addIngredientBtn = document.getElementById('add-ingredient-btn');
             const machineButtonsContainer = document.getElementById('machine-buttons');
             const addVaultBtn = document.getElementById('add-vault-btn');
+            const addChuteBtn = document.getElementById('add-chute-btn');
             const toast = document.getElementById('toast');
             
-            // View Controls
+            // View & Floor Controls
             const undoBtn = document.getElementById('undo-btn');
             const redoBtn = document.getElementById('redo-btn');
             const copyBtn = document.getElementById('copy-btn');
@@ -511,6 +586,11 @@
             const zoomInBtn = document.getElementById('zoom-in-btn');
             const zoomOutBtn = document.getElementById('zoom-out-btn');
             const fitAllBtn = document.getElementById('fit-all-btn');
+            const floorUpBtn = document.getElementById('floor-up-btn');
+            const floorDownBtn = document.getElementById('floor-down-btn');
+            const addFloorBtn = document.getElementById('add-floor-btn');
+            const removeFloorBtn = document.getElementById('remove-floor-btn');
+            const currentFloorDisplay = document.getElementById('current-floor-display');
 
             // Modals & Context Menu
             const guideModal = document.getElementById('guide-modal');
@@ -529,6 +609,7 @@
                 transform: { x: 0, y: 0, scale: 1 },
                 nodeCounter: 0,
                 edgeCounter: 0,
+                chuteCounter: 0,
                 selectedItem: null,
                 activeElement: null, // The element being actively dragged/resized
                 dragOffset: {x: 0, y: 0},
@@ -543,6 +624,8 @@
                 clipboard: null,
                 lastMouseCoords: { x: 0, y: 0 },
                 contextTarget: null, // Element that was right-clicked
+                floors: [{ name: 'Floor 0' }],
+                activeFloorIndex: 0,
             };
             
             // --- DATA ---
@@ -579,6 +662,16 @@
                         setTimeout(() => inThrottle = false, limit);
                     }
                 }
+            };
+
+            const generateChuteLabel = (index) => {
+                let label = '';
+                let tempIndex = index;
+                while (tempIndex >= 0) {
+                    label = String.fromCharCode(65 + (tempIndex % 26)) + label;
+                    tempIndex = Math.floor(tempIndex / 26) - 1;
+                }
+                return `Chute ${label}`;
             };
 
             // --- INITIALIZATION ---
@@ -639,7 +732,9 @@
                     nodes.push({ 
                         id: nodeEl.dataset.id, type: nodeEl.dataset.type, label: nodeEl.dataset.label, 
                         x: pos.x, y: pos.y,
-                        width: parseInt(nodeEl.dataset.width), height: parseInt(nodeEl.dataset.height) 
+                        width: parseInt(nodeEl.dataset.width), height: parseInt(nodeEl.dataset.height),
+                        floor: parseInt(nodeEl.dataset.floor),
+                        chuteId: nodeEl.dataset.chuteId || null
                     });
                 });
                 const edges = [];
@@ -651,7 +746,15 @@
                         waypoints: JSON.parse(path.dataset.waypoints || '[]')
                     });
                 });
-                return { nodes, edges, transform: { ...AppState.transform }, nodeCounter: AppState.nodeCounter, edgeCounter: AppState.edgeCounter };
+                return { 
+                    nodes, edges, 
+                    transform: { ...AppState.transform }, 
+                    nodeCounter: AppState.nodeCounter, 
+                    edgeCounter: AppState.edgeCounter,
+                    chuteCounter: AppState.chuteCounter,
+                    floors: JSON.parse(JSON.stringify(AppState.floors)),
+                    activeFloorIndex: AppState.activeFloorIndex
+                };
             };
 
             const saveState = () => {
@@ -670,13 +773,19 @@
 
                 AppState.nodeCounter = state.nodeCounter || 0;
                 AppState.edgeCounter = state.edgeCounter || 0;
+                AppState.chuteCounter = state.chuteCounter || 0;
+                AppState.floors = JSON.parse(JSON.stringify(state.floors || [{ name: 'Floor 0' }]));
+                AppState.activeFloorIndex = state.activeFloorIndex || 0;
 
-                state.nodes.forEach(nodeData => createNode(nodeData.id, nodeData.type, nodeData.label, nodeData.x, nodeData.y, nodeData.width, nodeData.height));
+
+                state.nodes.forEach(nodeData => createNode(nodeData.id, nodeData.type, nodeData.label, nodeData.x, nodeData.y, nodeData.width, nodeData.height, nodeData.floor, nodeData.chuteId));
                 state.edges.forEach(edgeData => createEdge(edgeData.source, edgeData.sourceHandle, edgeData.target, edgeData.targetHandle, edgeData.waypoints, false)); // Don't save history during restore
 
                 g.querySelectorAll('g.node').forEach(node => updateNodeColors(node.dataset.id));
                 AppState.transform = state.transform || { x: 0, y: 0, scale: 1 };
                 updateTransform();
+                updateFloorVisibility();
+                updateAllChutes();
             };
             
             const undo = () => {
@@ -757,17 +866,17 @@
             };
 
             // --- RENDERING & UPDATES ---
-            const addNode = (type, label, x, y, width = 150, height = 50) => {
+            const addNode = (type, label, x, y, width = 150, height = 50, floor = AppState.activeFloorIndex, chuteId = null) => {
                 const id = `node_${AppState.nodeCounter++}`;
                 if (x === undefined || y === undefined) {
                     const canvasRect = canvasContainer.getBoundingClientRect();
                     x = (canvasRect.width / 2 - AppState.transform.x) / AppState.transform.scale;
                     y = (canvasRect.height / 2 - AppState.transform.y) / AppState.transform.scale;
                 }
-                createNode(id, type, label, x, y, width, height);
+                createNode(id, type, label, x, y, width, height, floor, chuteId);
             };
 
-            const createNode = (id, type, label, x, y, width = 150, height = 50) => {
+            const createNode = (id, type, label, x, y, width = 150, height = 50, floor = AppState.activeFloorIndex, chuteId = null) => {
                 const nodeGroup = document.createElementNS(svgNS, 'g');
                 nodeGroup.classList.add('node');
                 nodeGroup.setAttribute('transform', `translate(${x}, ${y})`);
@@ -776,14 +885,32 @@
                 nodeGroup.dataset.label = label;
                 nodeGroup.dataset.width = width;
                 nodeGroup.dataset.height = height;
+                nodeGroup.dataset.floor = floor;
+                if(chuteId) nodeGroup.dataset.chuteId = chuteId;
                 
                 const foreignObject = document.createElementNS(svgNS, 'foreignObject');
                 foreignObject.classList.add('node-foreign-object');
-                foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="node-body">
-                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
-                    <span>${label}</span>
-                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
-                </div>`;
+                if (type === 'chute') {
+                    foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="node-body chute-body">
+                        <div class="chute-header">${label}</div>
+                        <div class="chute-io-container">
+                            <div>
+                                <h4 class="chute-io-title">Inputs</h4>
+                                <ul class="chute-io-list no-scrollbar" data-io="inputs"></ul>
+                            </div>
+                            <div>
+                                <h4 class="chute-io-title">Outputs</h4>
+                                <ul class="chute-io-list no-scrollbar" data-io="outputs"></ul>
+                            </div>
+                        </div>
+                    </div>`;
+                } else {
+                     foreignObject.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" class="node-body">
+                        <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                        <span>${label}</span>
+                        <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                    </div>`;
+                }
                 
                 nodeGroup.appendChild(foreignObject);
                 updateNodeAppearance(nodeGroup);
@@ -794,10 +921,12 @@
                 });
 
                 nodeGroup.addEventListener('dblclick', () => {
+                    if (nodeGroup.dataset.type === 'chute') return; // Cannot rename chutes
                     const newLabel = prompt('Enter new label:', nodeGroup.dataset.label);
                     if (newLabel) {
                         nodeGroup.dataset.label = newLabel;
                         nodeGroup.querySelector('.node-body span').textContent = newLabel;
+                        updateAllChutes();
                         updateAllEdgesForNode(id);
                         updateNodeColors(id);
                         saveState();
@@ -946,7 +1075,10 @@
                 updateEdge(edgeGroup);
                 updateNodeColors(sourceId);
                 updateNodeColors(targetId);
-                if (saveHistory) saveState();
+                if (saveHistory) {
+                    updateAllChutes();
+                    saveState();
+                }
             };
 
             const addWaypointToEdge = (path, coords) => {
@@ -1109,7 +1241,9 @@
                 if (!node) return;
                 const nodeBody = node.querySelector('.node-body');
 
-                if (node.dataset.type === 'process') {
+                if (node.dataset.type === 'chute') {
+                    nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #94a3b8, #475569)';
+                } else if (node.dataset.type === 'process') {
                     nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #3b82f6, #1d4ed8)';
                 } else if (node.dataset.type === 'vault') {
                     nodeBody.style.backgroundImage = 'linear-gradient(to bottom, #6b7280, #4b5563)';
@@ -1126,6 +1260,101 @@
                     }
                 }
             };
+
+            const updateAllChutes = () => {
+                const chuteConnections = new Map();
+
+                // 1. Find all chute nodes and initialize data structure
+                g.querySelectorAll('g.node[data-chute-id]').forEach(chuteNode => {
+                    const chuteId = chuteNode.dataset.chuteId;
+                    const floor = parseInt(chuteNode.dataset.floor);
+                    if (!chuteConnections.has(chuteId)) {
+                        chuteConnections.set(chuteId, new Map());
+                    }
+                    chuteConnections.get(chuteId).set(floor, { node: chuteNode, inputs: [] });
+                });
+
+                // 2. Populate inputs for each chute from connected edges
+                g.querySelectorAll('g.edge').forEach(edge => {
+                    const path = edge.querySelector('.connector');
+                    const targetNode = g.querySelector(`g.node[data-id="${path.dataset.target}"]`);
+                    if (targetNode && targetNode.dataset.chuteId) {
+                        const chuteId = targetNode.dataset.chuteId;
+                        const floor = parseInt(targetNode.dataset.floor);
+                        const sourceNode = g.querySelector(`g.node[data-id="${path.dataset.source}"]`);
+                        if(sourceNode) {
+                           chuteConnections.get(chuteId)?.get(floor)?.inputs.push(sourceNode.dataset.label);
+                        }
+                    }
+                });
+                
+                // 3. Update the display for each chute node
+                for (const [chuteId, floorMap] of chuteConnections.entries()) {
+                    const allInputs = Array.from(floorMap.values()).flatMap(data => data.inputs);
+                    
+                    for (const [floor, data] of floorMap.entries()) {
+                        const { node, inputs } = data;
+                        const outputs = allInputs.filter(inputLabel => !inputs.includes(inputLabel));
+
+                        const inputsList = node.querySelector('ul[data-io="inputs"]');
+                        const outputsList = node.querySelector('ul[data-io="outputs"]');
+                        
+                        inputsList.innerHTML = '';
+                        outputsList.innerHTML = '';
+
+                        inputs.forEach(label => {
+                            const li = document.createElement('li');
+                            li.textContent = label;
+                            li.title = label;
+                            inputsList.appendChild(li);
+                        });
+
+                        outputs.forEach(label => {
+                            const li = document.createElement('li');
+                            li.textContent = label;
+                            li.title = label;
+                            outputsList.appendChild(li);
+                        });
+                    }
+                }
+            };
+
+            // --- FLOOR MANAGEMENT ---
+            const updateFloorVisibility = () => {
+                // Update UI display
+                currentFloorDisplay.textContent = AppState.floors[AppState.activeFloorIndex].name;
+                floorDownBtn.disabled = AppState.activeFloorIndex === 0;
+                floorUpBtn.disabled = AppState.activeFloorIndex >= AppState.floors.length - 1;
+                removeFloorBtn.disabled = AppState.activeFloorIndex === 0;
+
+                // Update node visibility
+                g.querySelectorAll('g.node').forEach(node => {
+                    const floor = parseInt(node.dataset.floor);
+                    if (floor === AppState.activeFloorIndex) {
+                        node.classList.remove('ghosted');
+                    } else {
+                        node.classList.add('ghosted');
+                    }
+                });
+
+                // Update edge visibility
+                g.querySelectorAll('g.edge').forEach(edge => {
+                    const path = edge.querySelector('.connector');
+                    const sourceNode = g.querySelector(`g.node[data-id="${path.dataset.source}"]`);
+                    const targetNode = g.querySelector(`g.node[data-id="${path.dataset.target}"]`);
+                    
+                    if (sourceNode && targetNode) {
+                        const sourceFloor = parseInt(sourceNode.dataset.floor);
+                        const targetFloor = parseInt(targetNode.dataset.floor);
+
+                        if (sourceFloor === AppState.activeFloorIndex && targetFloor === AppState.activeFloorIndex) {
+                             edge.style.display = '';
+                        } else {
+                             edge.style.display = 'none';
+                        }
+                    }
+                });
+            }
 
             // --- EVENT HANDLERS ---
             confirmOkBtn.addEventListener('click', () => {
@@ -1148,11 +1377,40 @@
                 saveState();
             });
 
+            addChuteBtn.addEventListener('click', () => {
+                const chuteLabel = generateChuteLabel(AppState.chuteCounter);
+                const chuteId = `chute_${AppState.chuteCounter++}`;
+                const currentFloor = AppState.activeFloorIndex;
+                let nextFloor = currentFloor + 1;
+
+                // If the next floor doesn't exist, create it
+                if (nextFloor >= AppState.floors.length) {
+                    AppState.floors.push({ name: `Floor ${nextFloor}` });
+                }
+
+                const canvasRect = canvasContainer.getBoundingClientRect();
+                const x = (canvasRect.width / 2 - AppState.transform.x) / AppState.transform.scale;
+                const y = (canvasRect.height / 2 - AppState.transform.y) / AppState.transform.scale;
+
+                // Add chute on current floor
+                addNode('chute', chuteLabel, x, y, 180, 120, currentFloor, chuteId);
+                // Add chute on next floor at the same coordinates
+                addNode('chute', chuteLabel, x, y, 180, 120, nextFloor, chuteId);
+                
+                // Switch to the new floor and save
+                AppState.activeFloorIndex = nextFloor;
+                updateFloorVisibility();
+                saveState();
+            });
+
             clearBtn.addEventListener('click', () => {
                  showConfirm('Clear Canvas', 'Are you sure you want to clear the entire canvas?', () => {
                     g.innerHTML = '';
                     AppState.nodeCounter = 0;
                     AppState.selectedItem = null;
+                    AppState.floors = [{ name: 'Floor 0' }];
+                    AppState.activeFloorIndex = 0;
+                    updateFloorVisibility();
                     saveState();
                     showToast('Canvas Cleared!');
                 });
@@ -1349,7 +1607,12 @@
                  if (AppState.isResizing || (AppState.activeElement && !AppState.isConnecting)) {
                     // Final full update after throttled move/resize
                     if (AppState.isResizing) updateNodeAppearance(AppState.activeElement);
-                    else if (AppState.activeElement) updateAllEdgesForNode(AppState.activeElement.dataset.id);
+                    else if (AppState.activeElement) {
+                        updateAllEdgesForNode(AppState.activeElement.dataset.id);
+                        if (AppState.activeElement.dataset.chuteId) {
+                            updateAllChutes();
+                        }
+                    }
                     saveState();
                  }
                  if (AppState.isResizing) {
@@ -1371,6 +1634,15 @@
                     e.preventDefault();
                     redo();
                     return;
+                }
+
+                if (e.key === 'PageUp') {
+                    e.preventDefault();
+                    if (!floorUpBtn.disabled) floorUpBtn.click();
+                }
+                if (e.key === 'PageDown') {
+                    e.preventDefault();
+                    if (!floorDownBtn.disabled) floorDownBtn.click();
                 }
 
                 // Copy
@@ -1437,7 +1709,7 @@
 
             // --- API (IMPORT/EXPORT) & ACTIONS ---
             const copySelection = () => {
-                if (AppState.selectedItem && AppState.selectedItem.classList.contains('node')) {
+                if (AppState.selectedItem && AppState.selectedItem.classList.contains('node') && AppState.selectedItem.dataset.type !== 'chute') {
                     AppState.clipboard = {
                         type: AppState.selectedItem.dataset.type,
                         label: AppState.selectedItem.dataset.label,
@@ -1458,7 +1730,7 @@
             };
 
             const duplicateSelection = () => {
-                 if (AppState.selectedItem && AppState.selectedItem.classList.contains('node')) {
+                 if (AppState.selectedItem && AppState.selectedItem.classList.contains('node') && AppState.selectedItem.dataset.type !== 'chute') {
                     const pos = getNodeTranslation(AppState.selectedItem);
                     addNode(
                         AppState.selectedItem.dataset.type, 
@@ -1473,37 +1745,54 @@
             };
             
             const deleteSelection = (itemToDelete) => {
-                if (itemToDelete) {
-                    const isEdgeGroup = itemToDelete.classList.contains('edge');
+                if (!itemToDelete) return;
+
+                const itemsToDelete = new Set([itemToDelete]);
+
+                if (itemToDelete.classList.contains('node') && itemToDelete.dataset.chuteId) {
+                    const chuteId = itemToDelete.dataset.chuteId;
+                    g.querySelectorAll(`g.node[data-chute-id="${chuteId}"]`).forEach(chutePart => {
+                        itemsToDelete.add(chutePart);
+                    });
+                }
+
+                itemsToDelete.forEach(item => {
+                    if (!item.parentElement) return; 
+
+                    const isEdgeGroup = item.classList.contains('edge');
                     if (isEdgeGroup) {
-                        const { source, target } = itemToDelete.querySelector('path.connector').dataset;
-                        itemToDelete.remove();
+                        const { source, target } = item.querySelector('path.connector').dataset;
+                        item.remove();
                         updateNodeColors(source);
                         updateNodeColors(target);
-                    } else if (itemToDelete.tagName === 'g') { // Node
-                        const nodeId = itemToDelete.dataset.id;
+                    } else if (item.classList.contains('node')) {
+                        const nodeId = item.dataset.id;
                         const connectedNodes = new Set();
                         g.querySelectorAll(`path[data-source="${nodeId}"], path[data-target="${nodeId}"]`).forEach(path => {
                             connectedNodes.add(path.dataset.source);
                             connectedNodes.add(path.dataset.target);
                             path.parentElement.remove();
                         });
-                        itemToDelete.remove();
+                        item.remove();
                         connectedNodes.forEach(id => updateNodeColors(id));
-                    } else if (itemToDelete.classList.contains('waypoint')) { // waypoint
-                        const path = itemToDelete.closest('g.edge').querySelector('path.connector');
-                        const waypoints = JSON.parse(path.dataset.waypoints);
-                        const index = parseInt(itemToDelete.dataset.waypointIndex);
-                        waypoints.splice(index, 1);
-                        path.dataset.waypoints = JSON.stringify(waypoints);
-                        itemToDelete.remove();
-                        renderWaypoints(path);
-                        updateEdge(path.parentElement);
+                    } else if (item.classList.contains('waypoint')) {
+                        const path = item.closest('g.edge')?.querySelector('path.connector');
+                        if (path) {
+                            const waypoints = JSON.parse(path.dataset.waypoints);
+                            const index = parseInt(item.dataset.waypointIndex);
+                            waypoints.splice(index, 1);
+                            path.dataset.waypoints = JSON.stringify(waypoints);
+                            item.remove();
+                            renderWaypoints(path);
+                            updateEdge(path.parentElement);
+                        }
                     }
-                    deselectAll();
-                    saveState();
-                }
-            }
+                });
+                
+                deselectAll();
+                updateAllChutes();
+                saveState();
+            };
 
              const screenToSvg = (screenX, screenY) => {
                  const pt = new DOMPoint(screenX, screenY);
@@ -1608,9 +1897,10 @@
                 if (AppState.contextTarget && AppState.contextTarget.classList.contains('node')) {
                     // Node menu
                     selectItem(AppState.contextTarget);
+                    const isChute = AppState.contextTarget.dataset.type === 'chute';
                     const menuItems = [
-                        { label: 'Copy', action: copySelection, disabled: !AppState.selectedItem },
-                        { label: 'Duplicate', action: duplicateSelection, disabled: !AppState.selectedItem },
+                        { label: 'Copy', action: copySelection, disabled: !AppState.selectedItem || isChute },
+                        { label: 'Duplicate', action: duplicateSelection, disabled: !AppState.selectedItem || isChute },
                         { separator: true },
                         { label: 'Delete', action: () => deleteSelection(AppState.selectedItem), disabled: !AppState.selectedItem }
                     ];
@@ -1691,14 +1981,76 @@
             copyBtn.addEventListener('click', copySelection);
             pasteBtn.addEventListener('click', pasteFromClipboard);
             duplicateBtn.addEventListener('click', duplicateSelection);
+            
+            addFloorBtn.addEventListener('click', () => {
+                AppState.activeFloorIndex = AppState.floors.length;
+                AppState.floors.push({ name: `Floor ${AppState.activeFloorIndex}`});
+                updateFloorVisibility();
+                saveState();
+            });
+
+            floorUpBtn.addEventListener('click', () => {
+                if(AppState.activeFloorIndex < AppState.floors.length - 1) {
+                    AppState.activeFloorIndex++;
+                    updateFloorVisibility();
+                    saveState(); // Make floor change undoable
+                }
+            });
+
+            // BUG FIX: Rewrote this event listener to ensure it's correctly defined.
+            floorDownBtn.addEventListener('click', () => {
+                if(AppState.activeFloorIndex > 0) {
+                    AppState.activeFloorIndex--;
+                    updateFloorVisibility();
+                    saveState(); // Make floor change undoable
+                }
+            });
+
+            removeFloorBtn.addEventListener('click', () => {
+                if (AppState.activeFloorIndex === 0) return;
+
+                showConfirm(
+                    `Delete ${AppState.floors[AppState.activeFloorIndex].name}?`,
+                    'This will permanently delete this floor and all nodes on it.',
+                    () => {
+                        const floorToRemove = AppState.activeFloorIndex;
+                        const nodesOnFloor = Array.from(g.querySelectorAll(`g.node[data-floor="${floorToRemove}"]`));
+                        
+                        nodesOnFloor.forEach(node => deleteSelection(node));
+
+                        AppState.floors.splice(floorToRemove, 1);
+
+                        for (let i = floorToRemove; i < AppState.floors.length; i++) {
+                            AppState.floors[i].name = `Floor ${i}`;
+                            g.querySelectorAll(`g.node[data-floor="${i + 1}"]`).forEach(node => {
+                                node.dataset.floor = i;
+                            });
+                        }
+
+                        if (AppState.activeFloorIndex >= AppState.floors.length) {
+                            AppState.activeFloorIndex = AppState.floors.length - 1;
+                        }
+
+                        updateFloorVisibility();
+                        updateAllChutes();
+                        saveState();
+                        showToast(`Floor ${floorToRemove} removed.`);
+                    }
+                );
+            });
 
             init();
             saveState();
             updateTransform();
             updateEditButtonsState();
+            updateFloorVisibility();
         });
     </script>
 </body>
 </html>
 
+<<<<<<< HEAD
+=======
 
+
+>>>>>>> 0ae6396998bb8d9355cd018975ad13a34343977a
