@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Factory Builder - Feedback</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brass-dark: #71512E;
+            --brass: #a97a4a;
+            --brass-light: #D6A46E;
+            --dark-metal: #2E2F34;
+            --dark-metal-border: #1E1F22;
+            --panel-bg: #3a3f4b;
+            --accent-cyan: #0891b2;
+            --rivet-color: #2c303a;
+            --canvas-bg-color: #1a1a1a;
+            --text-color: #e5e7eb;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--canvas-bg-color);
+            color: var(--text-color);
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .title-font {
+            font-family: 'Roboto Slab', serif;
+        }
+        .card {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--dark-metal-border);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .btn-plate {
+            position: relative;
+            font-weight: 700;
+            color: white;
+            border-radius: 0.25rem;
+            border: 1px solid var(--dark-metal-border);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.7);
+            transition: filter 0.2s;
+        }
+        .btn-plate:hover {
+            filter: brightness(1.15);
+        }
+        .btn-plate:disabled {
+            filter: brightness(0.6);
+            cursor: not-allowed;
+        }
+        .rivet {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background-color: var(--rivet-color);
+            border-radius: 50%;
+            box-shadow: inset 0 1px 1px rgba(0,0,0,0.5);
+            border: 1px solid #1a1c20;
+        }
+        .rivet.top-left { top: 4px; left: 4px; }
+        .rivet.top-right { top: 4px; right: 4px; }
+        .rivet.bottom-left { bottom: 4px; left: 4px; }
+        .rivet.bottom-right { bottom: 4px; right: 4px; }
+        .form-input {
+            background-color: var(--dark-metal);
+            border: 1px solid var(--dark-metal-border);
+            color: var(--text-color);
+        }
+        .form-input:focus {
+            outline: none;
+            border-color: var(--accent-cyan);
+            box-shadow: 0 0 0 2px var(--accent-cyan);
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-8 md:py-12">
+        <header class="text-center mb-10">
+            <h1 class="title-font text-4xl md:text-5xl font-bold text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">Factory Builder Feedback</h1>
+            <p class="text-lg text-gray-300">Help shape the future of the planner!</p>
+        </header>
+
+        <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div class="lg:col-span-1">
+                <div id="feedback-form-card" class="card rounded-lg p-6 sticky top-8">
+                    <h2 class="title-font text-2xl font-bold text-white mb-4 border-b-2 border-cyan-400/50 pb-2">Leave a Comment</h2>
+                    <form id="feedback-form" class="space-y-4">
+                        <div>
+                            <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
+                            <input type="text" id="username" name="username" class="form-input w-full rounded-md p-2" placeholder="Engineer_73" required>
+                        </div>
+                        <div>
+                            <label for="category" class="block text-sm font-medium text-gray-300 mb-1">Category</label>
+                            <select id="category" name="category" class="form-input w-full rounded-md p-2" required>
+                                <option value="Suggestion">Suggestion</option>
+                                <option value="Bug Report">Bug Report</option>
+                                <option value="Feature Request">Feature Request</option>
+                                <option value="General Comment">General Comment</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label for="comment" class="block text-sm font-medium text-gray-300 mb-1">Feedback</label>
+                            <textarea id="comment" name="comment" rows="5" class="form-input w-full rounded-md p-2" placeholder="What's on your mind?" required></textarea>
+                        </div>
+                        <button type="submit" id="submit-btn" class="w-full btn-plate font-bold py-3 px-4 transition-colors text-center" style="background-image: linear-gradient(to bottom, var(--accent-cyan), #065f74);">
+                            <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                            Submit Feedback
+                            <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                        </button>
+                    </form>
+                    <div id="toast" class="absolute bottom-4 right-4 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">Feedback submitted!</div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-2">
+                 <h2 class="title-font text-2xl font-bold text-white mb-4">Community Feedback</h2>
+                 <div id="feedback-list" class="space-y-4">
+                    <div id="loading-state" class="text-center py-10 text-gray-400">
+                        <p>Loading feedback...</p>
+                    </div>
+                 </div>
+            </div>
+        </main>
+    </div>
+
+    <script type="module">
+        import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : { apiKey: "DEMO", authDomain: "DEMO", projectId: "DEMO" };
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        
+        setLogLevel('debug');
+
+        const feedbackForm = document.getElementById('feedback-form');
+        const feedbackList = document.getElementById('feedback-list');
+        const loadingState = document.getElementById('loading-state');
+        const submitBtn = document.getElementById('submit-btn');
+        const toast = document.getElementById('toast');
+
+        const categoryStyles = {
+            'Suggestion': 'bg-blue-500 text-white',
+            'Bug Report': 'bg-red-500 text-white',
+            'Feature Request': 'bg-purple-500 text-white',
+            'General Comment': 'bg-gray-500 text-white',
+        };
+        const categoryIcons = {
+            'Suggestion': '💡',
+            'Bug Report': '🐞',
+            'Feature Request': '✨',
+            'General Comment': '💬',
+        };
+
+        async function init() {
+            try {
+                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                    await signInWithCustomToken(auth, __initial_auth_token);
+                } else {
+                    await signInAnonymously(auth);
+                }
+                console.log("Firebase auth successful. User UID:", auth.currentUser.uid);
+                setupRealtimeListener();
+            } catch (error) {
+                console.error("Firebase Auth Error:", error);
+                feedbackList.innerHTML = `<p class="text-red-400">Could not connect to the feedback service. Please try again later.</p>`;
+            }
+        }
+
+        function setupRealtimeListener() {
+            const feedbackCollectionRef = collection(db, `artifacts/${appId}/public/data/feedback`);
+            
+            onSnapshot(feedbackCollectionRef, (snapshot) => {
+                loadingState.style.display = 'none';
+                if (snapshot.empty) {
+                    feedbackList.innerHTML = '<p class="text-gray-400">No feedback yet. Be the first!</p>';
+                    return;
+                }
+
+                const feedbackItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                
+                feedbackItems.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
+
+                feedbackList.innerHTML = '';
+                feedbackItems.forEach(item => {
+                    const card = createFeedbackCard(item);
+                    feedbackList.appendChild(card);
+                });
+
+            }, (error) => {
+                console.error("Error fetching feedback:", error);
+                feedbackList.innerHTML = `<p class="text-red-400">Error loading feedback. Please check the console for details.</p>`;
+            });
+        }
+        
+        function createFeedbackCard(item) {
+            const card = document.createElement('div');
+            card.className = 'card rounded-lg p-5 animate-fade-in';
+
+            const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+            const category = item.category || 'General Comment';
+            const style = categoryStyles[category] || categoryStyles['General Comment'];
+            const icon = categoryIcons[category] || categoryIcons['General Comment'];
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <p class="font-bold text-lg text-white">${item.username || 'Anonymous'}</p>
+                        <p class="text-xs text-gray-400">${date}</p>
+                    </div>
+                    <span class="text-xs font-bold py-1 px-3 rounded-full ${style}">${icon} ${category}</span>
+                </div>
+                <p class="text-gray-300 mt-3 whitespace-pre-wrap">${item.comment || ''}</p>
+            `;
+            return card;
+        }
+        
+        feedbackForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+
+            const formData = new FormData(feedbackForm);
+            const feedbackData = {
+                username: formData.get('username'),
+                category: formData.get('category'),
+                comment: formData.get('comment'),
+                timestamp: serverTimestamp()
+            };
+            
+            try {
+                const feedbackCollectionRef = collection(db, `artifacts/${appId}/public/data/feedback`);
+                await addDoc(feedbackCollectionRef, feedbackData);
+                
+                feedbackForm.reset();
+                showToast('Feedback submitted successfully!');
+
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showToast('Error: Could not submit feedback.', true);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Submit Feedback
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                `;
+            }
+        });
+
+        function showToast(message, isError = false) {
+            toast.textContent = message;
+            toast.className = `absolute bottom-4 right-4 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
+            toast.classList.remove('opacity-0');
+            setTimeout(() => {
+                toast.classList.add('opacity-0');
+            }, 3000);
+        }
+
+        init();
+    </script>
+</body>
+</html>
