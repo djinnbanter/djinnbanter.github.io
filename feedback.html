@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Factory Builder - Feedback</title>
+    <title>Create Mod Factory Builder - Feedback</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --brass-dark: #71512E;
@@ -19,27 +19,16 @@
             --accent-cyan: #0891b2;
             --rivet-color: #2c303a;
             --canvas-bg-color: #1a1a1a;
-            --text-color: #e5e7eb;
         }
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Roboto Slab', serif;
             background-color: var(--canvas-bg-color);
-            color: var(--text-color);
             background-image:
                 linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
                 linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
             background-size: 20px 20px;
         }
-        .title-font {
-            font-family: 'Roboto Slab', serif;
-        }
-        .card {
-            background-color: var(--panel-bg);
-            border: 2px solid var(--dark-metal-border);
-            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        .btn-plate {
+        .plate {
             position: relative;
             font-weight: 700;
             color: white;
@@ -47,14 +36,6 @@
             border: 1px solid var(--dark-metal-border);
             box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
             text-shadow: 0 1px 2px rgba(0,0,0,0.7);
-            transition: filter 0.2s;
-        }
-        .btn-plate:hover {
-            filter: brightness(1.15);
-        }
-        .btn-plate:disabled {
-            filter: brightness(0.6);
-            cursor: not-allowed;
         }
         .rivet {
             position: absolute;
@@ -69,74 +50,84 @@
         .rivet.top-right { top: 4px; right: 4px; }
         .rivet.bottom-left { bottom: 4px; left: 4px; }
         .rivet.bottom-right { bottom: 4px; right: 4px; }
-        .form-input {
-            background-color: var(--dark-metal);
-            border: 1px solid var(--dark-metal-border);
-            color: var(--text-color);
+        .btn-plate:hover {
+            filter: brightness(1.2);
         }
-        .form-input:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
-            box-shadow: 0 0 0 2px var(--accent-cyan);
+        .comment-card, .form-card {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--dark-metal-border);
+            box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
+        }
+        .comment-reply {
+            border-left: 4px solid var(--brass);
+            background-color: rgba(46, 47, 52, 0.5);
         }
     </style>
 </head>
-<body class="antialiased">
+<body class="bg-gray-900 text-white min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div class="container mx-auto px-4 py-8 md:py-12">
+    <div class="max-w-6xl mx-auto">
         <header class="text-center mb-10">
-            <h1 class="title-font text-4xl md:text-5xl font-bold text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">Factory Builder Feedback</h1>
-            <p class="text-lg text-gray-300">Help shape the future of the planner!</p>
+            <h1 class="text-4xl md:text-5xl font-bold text-cyan-400" style="text-shadow: 0 0 10px var(--accent-cyan);">Factory Builder Feedback</h1>
+            <p class="text-gray-400 mt-2 text-lg">Help shape the future of the planner!</p>
         </header>
 
         <main class="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-1">
-                <div id="feedback-form-card" class="card rounded-lg p-6 sticky top-8">
-                    <h2 class="title-font text-2xl font-bold text-white mb-4 border-b-2 border-cyan-400/50 pb-2">Leave a Comment</h2>
-                    <form id="feedback-form" class="space-y-4">
-                        <div>
-                            <label for="username" class="block text-sm font-medium text-gray-300 mb-1">Username</label>
-                            <input type="text" id="username" name="username" class="form-input w-full rounded-md p-2" placeholder="Engineer_73" required>
+            
+            <!-- Feedback Submission Form -->
+            <aside class="lg:col-span-1">
+                <div class="form-card rounded-lg p-6 sticky top-8">
+                    <h2 class="text-2xl font-bold text-white border-b-2 border-gray-700 pb-3 mb-4">Leave a Comment</h2>
+                    <form id="feedback-form">
+                        <div class="mb-4">
+                            <label for="username" class="block text-gray-300 mb-2">Username</label>
+                            <input type="text" id="username" class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none" required>
                         </div>
-                        <div>
-                            <label for="category" class="block text-sm font-medium text-gray-300 mb-1">Category</label>
-                            <select id="category" name="category" class="form-input w-full rounded-md p-2" required>
-                                <option value="Suggestion">Suggestion</option>
-                                <option value="Bug Report">Bug Report</option>
-                                <option value="Feature Request">Feature Request</option>
-                                <option value="General Comment">General Comment</option>
+                        <div class="mb-4">
+                            <label for="category" class="block text-gray-300 mb-2">Category</label>
+                            <select id="category" class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
+                                <option>Suggestion</option>
+                                <option>Bug Report</option>
+                                <option>Praise</option>
+                                <option>Other</option>
                             </select>
                         </div>
-                        <div>
-                            <label for="comment" class="block text-sm font-medium text-gray-300 mb-1">Feedback</label>
-                            <textarea id="comment" name="comment" rows="5" class="form-input w-full rounded-md p-2" placeholder="What's on your mind?" required></textarea>
+                        <div class="mb-4">
+                            <label for="comment" class="block text-gray-300 mb-2">Comment</label>
+                            <textarea id="comment" rows="5" class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none" required></textarea>
                         </div>
-                        <button type="submit" id="submit-btn" class="w-full btn-plate font-bold py-3 px-4 transition-colors text-center" style="background-image: linear-gradient(to bottom, var(--accent-cyan), #065f74);">
+                        <button type="submit" id="submit-btn" class="w-full btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #22c55e, #166534);">
                             <div class="rivet top-left"></div><div class="rivet top-right"></div>
                             Submit Feedback
                             <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
                         </button>
                     </form>
-                    <div id="toast" class="absolute bottom-4 right-4 bg-green-600 text-white py-2 px-4 rounded-lg shadow-lg opacity-0 transition-opacity duration-300 pointer-events-none">Feedback submitted!</div>
                 </div>
-            </div>
+            </aside>
 
-            <div class="lg:col-span-2">
-                 <h2 class="title-font text-2xl font-bold text-white mb-4">Community Feedback</h2>
-                 <div id="feedback-list" class="space-y-4">
-                    <div id="loading-state" class="text-center py-10 text-gray-400">
-                        <p>Loading feedback...</p>
-                    </div>
-                 </div>
-            </div>
+            <!-- Community Feedback Section -->
+            <section class="lg:col-span-2">
+                <h2 class="text-3xl font-bold text-white mb-6">Community Feedback</h2>
+                <div id="feedback-list" class="space-y-6">
+                    <!-- Loading state -->
+                    <p id="loading-state" class="text-gray-400">Connecting to feedback service...</p>
+                    <!-- Error state -->
+                    <p id="error-state" class="hidden text-red-400"></p>
+                    <!-- Empty state -->
+                    <p id="empty-state" class="hidden text-gray-400">No feedback yet. Be the first to leave a comment!</p>
+                </div>
+            </section>
         </main>
     </div>
 
+    <!-- Firebase SDK -->
     <script type="module">
-        import { initializeApp, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, query, onSnapshot, serverTimestamp, setDoc, getDocs, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
+        // --- IMPORTANT CONFIGURATION ---
+        // Your web app's Firebase configuration
         const firebaseConfig = {
             apiKey: "AIzaSyC8VmlJpkvoljn42deVT9PU3uDfV2zMVmY",
             authDomain: "factorybuilderfeedback.firebaseapp.com",
@@ -145,154 +136,234 @@
             messagingSenderId: "523884151318",
             appId: "1:523884151318:web:7ed25d016866e8b4bb2b37"
         };
-        
-        const appId = 'factorybuilderfeedback';
-        
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
-        
-        setLogLevel('debug');
 
+        // This is your unique User ID from the Firebase Authentication console.
+        // Only the user with this ID will see the "Reply" buttons.
+        const ADMIN_UID = "PASTE_YOUR_ADMIN_UID_HERE"; // IMPORTANT!
+
+        const appId = "factorybuilderfeedback";
+        let app, db, auth;
+
+        // --- DOM ELEMENTS ---
         const feedbackForm = document.getElementById('feedback-form');
         const feedbackList = document.getElementById('feedback-list');
         const loadingState = document.getElementById('loading-state');
-        const submitBtn = document.getElementById('submit-btn');
-        const toast = document.getElementById('toast');
+        const errorState = document.getElementById('error-state');
+        const emptyState = document.getElementById('empty-state');
 
-        const categoryStyles = {
-            'Suggestion': 'bg-blue-500 text-white',
-            'Bug Report': 'bg-red-500 text-white',
-            'Feature Request': 'bg-purple-500 text-white',
-            'General Comment': 'bg-gray-500 text-white',
-        };
-        const categoryIcons = {
-            'Suggestion': '💡',
-            'Bug Report': '🐞',
-            'Feature Request': '✨',
-            'General Comment': '💬',
-        };
-
-        async function init() {
+        // --- INITIALIZATION ---
+        const init = () => {
             try {
-                // For a public feedback page, we can just sign in anonymously.
-                await signInAnonymously(auth);
-                console.log("Firebase auth successful. User UID:", auth.currentUser.uid);
-                setupRealtimeListener();
-            } catch (error) {
-                console.error("Firebase Auth Error:", error);
-                loadingState.style.display = 'none';
-                let errorTitle = 'Connection Error';
-                let errorMessage = 'Could not connect to the feedback service. Please try again later.';
-                let errorLink = '';
+                app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
 
-                if (error.code === 'auth/configuration-not-found') {
-                    errorTitle = 'Action Required: Enable Anonymous Sign-In';
-                    errorMessage = 'This feedback page uses anonymous sign-in, which is currently disabled in your Firebase project.';
-                    errorLink = `<a href="https://console.firebase.google.com/project/${firebaseConfig.projectId}/authentication/providers" target="_blank" class="text-cyan-400 hover:underline mt-2 inline-block">Click here to go to your Firebase Console and enable it.</a>`;
-                }
-
-                feedbackList.innerHTML = `
-                    <div class="bg-red-900 border-l-4 border-red-500 text-red-100 p-4 rounded-r-lg" role="alert">
-                        <p class="font-bold title-font text-lg">${errorTitle}</p>
-                        <p class="mt-1">${errorMessage}</p>
-                        ${errorLink}
-                    </div>
-                `;
-            }
-        }
-
-        function setupRealtimeListener() {
-            const feedbackCollectionRef = collection(db, `artifacts/${appId}/public/data/feedback`);
-            
-            onSnapshot(feedbackCollectionRef, (snapshot) => {
-                loadingState.style.display = 'none';
-                if (snapshot.empty) {
-                    feedbackList.innerHTML = '<p class="text-gray-400">No feedback yet. Be the first!</p>';
-                    return;
-                }
-
-                const feedbackItems = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-                
-                feedbackItems.sort((a, b) => (b.timestamp?.seconds || 0) - (a.timestamp?.seconds || 0));
-
-                feedbackList.innerHTML = '';
-                feedbackItems.forEach(item => {
-                    const card = createFeedbackCard(item);
-                    feedbackList.appendChild(card);
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        // User is signed in.
+                        listenForFeedback(auth);
+                    } else {
+                        // User is signed out. Attempt to sign in anonymously.
+                        signInAnonymously(auth).catch(error => {
+                             let message = "Could not connect to the feedback service. Please try again later.";
+                             if (error.code === 'auth/configuration-not-found') {
+                                message = "Authentication error: Anonymous Sign-In is likely not enabled in your Firebase project. Please go to your Firebase Console -> Authentication -> Sign-in method, and enable 'Anonymous' sign-in. Link: https://console.firebase.google.com/project/_/authentication/providers";
+                             }
+                            console.error("Anonymous sign-in failed:", error);
+                            showError(message);
+                        });
+                    }
                 });
+            } catch (error) {
+                console.error("Firebase initialization failed:", error);
+                showError("Could not initialize the feedback service. Invalid configuration.");
+            }
+        };
 
-            }, (error) => {
-                console.error("Error fetching feedback:", error);
-                feedbackList.innerHTML = `<p class="text-red-400">Error loading feedback. Please check the console for details.</p>`;
-            });
-        }
+        // --- UI RENDERING ---
+        const showError = (message) => {
+            loadingState.classList.add('hidden');
+            emptyState.classList.add('hidden');
+            errorState.textContent = message;
+            errorState.classList.remove('hidden');
+        };
+
+        const showReplyForm = (feedbackId, commentContainer) => {
+            // Remove any existing reply forms
+            const existingForm = commentContainer.querySelector('.reply-form-container');
+            if (existingForm) {
+                existingForm.remove();
+                return;
+            }
+            
+            const replyFormContainer = document.createElement('div');
+            replyFormContainer.className = 'reply-form-container mt-4';
+            replyFormContainer.innerHTML = `
+                <textarea class="w-full bg-gray-800 border border-gray-600 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none" rows="3" placeholder="Write your reply..."></textarea>
+                <div class="flex justify-end gap-2 mt-2">
+                     <button class="cancel-reply-btn text-sm py-1 px-3 rounded-md bg-gray-600 hover:bg-gray-500 transition-colors">Cancel</button>
+                    <button class="submit-reply-btn text-sm py-1 px-3 rounded-md bg-cyan-600 hover:bg-cyan-500 transition-colors">Submit Reply</button>
+                </div>
+            `;
+            
+            commentContainer.appendChild(replyFormContainer);
+            
+            replyFormContainer.querySelector('.submit-reply-btn').onclick = () => {
+                const replyText = replyFormContainer.querySelector('textarea').value;
+                if(replyText.trim()){
+                    submitReply(feedbackId, replyText, commentContainer);
+                }
+            };
+            replyFormContainer.querySelector('.cancel-reply-btn').onclick = () => {
+                 replyFormContainer.remove();
+            };
+        };
         
-        function createFeedbackCard(item) {
+        const renderComment = (doc, auth) => {
+            const data = doc.data();
+            const commentId = doc.id;
             const card = document.createElement('div');
-            card.className = 'card rounded-lg p-5 animate-fade-in';
+            card.className = 'comment-card rounded-lg p-5';
+            card.id = `comment-${commentId}`;
 
-            const date = item.timestamp ? new Date(item.timestamp.seconds * 1000).toLocaleString() : 'Just now';
-            const category = item.category || 'General Comment';
-            const style = categoryStyles[category] || categoryStyles['General Comment'];
-            const icon = categoryIcons[category] || categoryIcons['General Comment'];
+            const formattedDate = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+
+            let adminControls = '';
+            if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
+                adminControls = `<button class="reply-btn text-sm font-bold text-cyan-400 hover:text-cyan-300 transition-colors">Reply</button>`;
+            }
 
             card.innerHTML = `
                 <div class="flex justify-between items-start">
                     <div>
-                        <p class="font-bold text-lg text-white">${item.username || 'Anonymous'}</p>
-                        <p class="text-xs text-gray-400">${date}</p>
+                        <p class="font-bold text-lg text-white">${data.username || 'Anonymous'}</p>
+                        <p class="text-sm text-gray-400">${formattedDate}</p>
                     </div>
-                    <span class="text-xs font-bold py-1 px-3 rounded-full ${style}">${icon} ${category}</span>
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold bg-gray-800 text-cyan-300 px-2 py-1 rounded-md">${data.category}</span>
+                        ${adminControls}
+                    </div>
                 </div>
-                <p class="text-gray-300 mt-3 whitespace-pre-wrap">${item.comment || ''}</p>
+                <p class="text-gray-200 mt-3 whitespace-pre-wrap">${data.comment}</p>
+                <div class="replies-container mt-4 space-y-3 pl-4"></div>
             `;
+            
+            if(adminControls) {
+                card.querySelector('.reply-btn').addEventListener('click', () => showReplyForm(commentId, card));
+            }
+
+            const repliesContainer = card.querySelector('.replies-container');
+            fetchAndDisplayReplies(commentId, repliesContainer);
+            
             return card;
-        }
-        
+        };
+
+        // --- FIRESTORE LOGIC ---
+        const listenForFeedback = (auth) => {
+            const feedbackCollection = collection(db, `artifacts/${appId}/public/data/feedback`);
+            const q = query(feedbackCollection); // No ordering here to avoid index requirement
+
+            onSnapshot(q, (snapshot) => {
+                loadingState.classList.add('hidden');
+                errorState.classList.add('hidden');
+
+                if (snapshot.empty) {
+                    emptyState.classList.remove('hidden');
+                    feedbackList.innerHTML = '';
+                    feedbackList.appendChild(emptyState);
+                } else {
+                    emptyState.classList.add('hidden');
+                    const comments = [];
+                    snapshot.forEach(doc => comments.push(doc));
+                    
+                    // Sort in memory (newest first)
+                    comments.sort((a, b) => {
+                        const timeA = a.data().timestamp?.seconds || 0;
+                        const timeB = b.data().timestamp?.seconds || 0;
+                        return timeB - timeA;
+                    });
+
+                    feedbackList.innerHTML = ''; // Clear previous list
+                    comments.forEach(doc => {
+                        const commentEl = renderComment(doc, auth);
+                        feedbackList.appendChild(commentEl);
+                    });
+                }
+            }, (error) => {
+                console.error("Error listening for feedback:", error);
+                showError("Failed to load feedback. Check your Firestore security rules and configuration.");
+            });
+        };
+
+        const submitReply = async (feedbackId, replyText, commentContainer) => {
+            if (!auth.currentUser || auth.currentUser.uid !== ADMIN_UID) {
+                alert("You are not authorized to reply.");
+                return;
+            }
+            const replyRef = doc(db, `artifacts/${appId}/public/data/feedback/${feedbackId}/replies`, crypto.randomUUID());
+            try {
+                await setDoc(replyRef, {
+                    text: replyText,
+                    timestamp: serverTimestamp(),
+                    author: "Developer"
+                });
+                commentContainer.querySelector('.reply-form-container').remove();
+            } catch (error) {
+                console.error("Error submitting reply:", error);
+                alert("Failed to submit reply.");
+            }
+        };
+
+        const fetchAndDisplayReplies = async (feedbackId, repliesContainer) => {
+            const repliesQuery = query(collection(db, `artifacts/${appId}/public/data/feedback/${feedbackId}/replies`));
+            
+            // Use onSnapshot for real-time reply updates as well
+            onSnapshot(repliesQuery, (querySnapshot) => {
+                repliesContainer.innerHTML = ''; // Clear existing replies
+                const replies = [];
+                querySnapshot.forEach((doc) => replies.push(doc.data()));
+
+                 // Sort in memory (oldest first for conversational flow)
+                replies.sort((a, b) => {
+                    const timeA = a.timestamp?.seconds || 0;
+                    const timeB = b.timestamp?.seconds || 0;
+                    return timeA - timeB;
+                });
+
+                replies.forEach(data => {
+                    const replyDiv = document.createElement('div');
+                    replyDiv.className = 'comment-reply p-3 rounded-lg';
+                    replyDiv.innerHTML = `<p class="font-bold text-brass">${data.author}</p><p class="text-gray-300 whitespace-pre-wrap">${data.text}</p>`;
+                    repliesContainer.appendChild(replyDiv);
+                });
+            }, (error) => {
+                console.error(`Error fetching replies for ${feedbackId}:`, error);
+            });
+        };
+
         feedbackForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            submitBtn.disabled = true;
-            submitBtn.textContent = 'Submitting...';
+            const username = document.getElementById('username').value;
+            const category = document.getElementById('category').value;
+            const comment = document.getElementById('comment').value;
 
-            const formData = new FormData(feedbackForm);
-            const feedbackData = {
-                username: formData.get('username'),
-                category: formData.get('category'),
-                comment: formData.get('comment'),
-                timestamp: serverTimestamp()
-            };
-            
             try {
-                const feedbackCollectionRef = collection(db, `artifacts/${appId}/public/data/feedback`);
-                await addDoc(feedbackCollectionRef, feedbackData);
-                
+                const feedbackCollection = collection(db, `artifacts/${appId}/public/data/feedback`);
+                await addDoc(feedbackCollection, {
+                    username,
+                    category,
+                    comment,
+                    timestamp: serverTimestamp()
+                });
                 feedbackForm.reset();
-                showToast('Feedback submitted successfully!');
-
             } catch (error) {
                 console.error("Error adding document: ", error);
-                showToast('Error: Could not submit feedback.', true);
-            } finally {
-                submitBtn.disabled = false;
-                submitBtn.innerHTML = `
-                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
-                    Submit Feedback
-                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
-                `;
+                showError("Your comment could not be submitted. Please try again.");
             }
         });
 
-        function showToast(message, isError = false) {
-            toast.textContent = message;
-            toast.className = `absolute bottom-4 right-4 text-white py-2 px-4 rounded-lg shadow-lg transition-opacity duration-300 ${isError ? 'bg-red-600' : 'bg-green-600'}`;
-            toast.classList.remove('opacity-0');
-            setTimeout(() => {
-                toast.classList.add('opacity-0');
-            }, 3000);
-        }
-
-        init();
+        // --- START THE APP ---
+        document.addEventListener('DOMContentLoaded', init);
     </script>
 </body>
 </html>
