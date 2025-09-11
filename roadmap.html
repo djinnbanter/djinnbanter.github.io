@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Mod Factory Builder - The Road to v2.0</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --brass-dark: #71512E;
+            --brass: #a97a4a;
+            --brass-light: #D6A46E;
+            --dark-metal: #2E2F34;
+            --dark-metal-border: #1E1F22;
+            --panel-bg: #3a3f4b;
+            --accent-cyan: #0891b2;
+            --rivet-color: #2c303a;
+            --canvas-bg-color: #1a1a1a;
+            --text-color: #e5e7eb;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--canvas-bg-color);
+            color: var(--text-color);
+            background-image:
+                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+        .title-font {
+            font-family: 'Roboto Slab', serif;
+        }
+        .card {
+            background-color: var(--panel-bg);
+            border: 2px solid var(--dark-metal-border);
+            box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 2px 4px rgba(0,0,0,0.5);
+            position: relative;
+        }
+        .version-tag {
+            position: absolute;
+            top: -1px;
+            right: -1px;
+            background-color: var(--brass);
+            color: var(--dark-metal-border);
+            padding: 0.25rem 0.75rem;
+            border-bottom-left-radius: 0.5rem;
+            border-top-right-radius: 0.5rem;
+            font-family: 'Roboto Slab', serif;
+            font-weight: 700;
+            border-left: 2px solid var(--dark-metal-border);
+            border-bottom: 2px solid var(--dark-metal-border);
+        }
+        .feature-list li {
+            position: relative;
+            padding-left: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .feature-list li::before {
+            content: '►';
+            position: absolute;
+            left: 0;
+            color: var(--accent-cyan);
+            font-size: 0.8em;
+            top: 0.25rem;
+        }
+        .flow-arrow {
+            font-size: 2rem;
+            line-height: 1;
+            color: var(--brass-light);
+        }
+        .quarter-divider {
+            border-top: 2px dashed var(--dark-metal);
+            margin: 3rem 0;
+        }
+    </style>
+</head>
+<body class="antialiased">
+
+    <div class="container mx-auto px-4 py-8 md:py-16">
+        <header class="text-center mb-12 md:mb-20">
+            <h1 class="title-font text-4xl md:text-6xl font-bold text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">Create Mod Factory Builder</h1>
+            <p class="text-xl md:text-2xl text-gray-300">The Official Development Roadmap to Version 2.0</p>
+        </header>
+
+        <main class="space-y-12">
+            
+            <!-- Quarter 1 -->
+            <section id="q1">
+                <h2 class="title-font text-3xl font-bold text-white mb-4 border-b-2 border-cyan-400/50 pb-2">Quarter 1: Foundational Enhancements & UX</h2>
+                <p class="text-gray-300 mb-8">The focus of this quarter is to refine the core user experience, improve visual feedback, and add essential quality-of-life features that make the tool more intuitive and powerful for everyday use.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.1</div>
+                        <h3 class="title-font text-2xl font-bold text-cyan-300 mb-4">The Quality of Life Update</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Multi-Selection & Grouping:</b> Implement box selection and allow users to group nodes (Ctrl+G) to be moved together.</li>
+                            <li><b>Enhanced Conveyor Visuals:</b> Add animated textures to conveyors for direction and introduce distinct styles for belts, funnels, and chutes.</li>
+                            <li><b>Snapping Grid Improvements:</b> Add a toggleable visible grid and allow users to adjust its size for precise placement.</li>
+                        </ul>
+                    </div>
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.2</div>
+                        <h3 class="title-font text-2xl font-bold text-cyan-300 mb-4">The Organization Update</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Layers & Z-axis:</b> Introduce a layer management system for building multi-story factories by moving nodes up or down.</li>
+                            <li><b>Labeling and Annotations:</b> Allow users to add text labels directly onto the canvas to describe parts of their factory.</li>
+                            <li><b>Project File Management:</b> Implement autosave to local storage and improve import/export with better error handling.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <div class="quarter-divider"></div>
+
+            <!-- Quarter 2 -->
+            <section id="q2">
+                <h2 class="title-font text-3xl font-bold text-white mb-4 border-b-2 border-cyan-400/50 pb-2">Quarter 2: Introducing Logic & Power</h2>
+                <p class="text-gray-300 mb-8">This quarter focuses on integrating the core mechanics of the Create Mod, starting with the power system, Redstone logic, and fluid management.</p>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.3</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">The Power Update</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Rotational Power:</b> Add nodes for power sources (Water Wheels, etc.) and transfer components (Shafts, Cogs).</li>
+                            <li><b>Power Network Simulation:</b> Implement a basic Stress Unit (SU) calculation to show power generation vs. consumption.</li>
+                        </ul>
+                    </div>
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.4</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">Smarter Factories</h3>
+                        <ul class="feature-list text-gray-300">
+                             <li><b>Redstone & Logic:</b> Add nodes for Redstone and Create-specific logic components like Content Observers.</li>
+                            <li><b>Basic Logic Simulation:</b> Link logic components to machines to visualize their "on/off" state.</li>
+                        </ul>
+                    </div>
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.5</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">The Fluids Update</h3>
+                        <ul class="feature-list text-gray-300">
+                             <li><b>Fluid Management:</b> Introduce nodes for Pumps and Tanks, with Pipes as a new connection type.</li>
+                            <li><b>Fluid Network Visualization:</b> Allow users to specify fluid types and visualize flow.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="quarter-divider"></div>
+
+            <!-- Quarter 3 -->
+            <section id="q3">
+                <h2 class="title-font text-3xl font-bold text-white mb-4 border-b-2 border-cyan-400/50 pb-2">Quarter 3: Automation & Full Feature Parity</h2>
+                <p class="text-gray-300 mb-8">This quarter aims to bring the planner closer to the full capabilities of the Create Mod, focusing on complex automation with trains and contraptions, and culminating in the ultimate planner experience.</p>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.6</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">The Railway Update</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Train and Track Planning:</b> Add tools for designing train tracks with curves and slopes.</li>
+                            <li><b>Train Components:</b> Introduce nodes for Stations, Signals, and Train Controls, and allow train assembly.</li>
+                        </ul>
+                    </div>
+                     <div class="card rounded-lg p-6">
+                        <div class="version-tag">v1.7</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">The Contraptions Update</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Movable Contraptions:</b> Introduce components like Bearings, Gantries, and Rope Pulleys.</li>
+                            <li><b>Contraption Mode:</b> Add a special mode to assemble components onto a chassis and visualize movement.</li>
+                        </ul>
+                    </div>
+                    <div class="card rounded-lg p-6 md:col-span-2 lg:col-span-1">
+                        <div class="version-tag">v2.0</div>
+                        <h3 class="title-font text-xl font-bold text-cyan-300 mb-4">The Ultimate Factory Planner</h3>
+                        <ul class="feature-list text-gray-300">
+                            <li><b>Full Recipe Database:</b> Integrate a complete database of Create Mod item recipes.</li>
+                            <li><b>Calculation and Analytics:</b> Provide a dashboard that calculates total resource input and item output per minute.</li>
+                             <li><b>UI Overhaul:</b> A complete user interface refresh based on a year of user feedback.</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            
+            <div class="quarter-divider"></div>
+
+            <!-- Post-v2.0 Wishlist -->
+            <section id="wishlist">
+                <h2 class="title-font text-3xl font-bold text-white mb-4 border-b-2 border-brass-light/50 pb-2">Post-v2.0 Wishlist: Advanced Features & Collaboration</h2>
+                 <p class="text-gray-300 mb-8">These are highly-requested, ambitious features that are planned for development after the core v2.0 roadmap is complete. Their implementation will depend on community feedback and technical feasibility.</p>
+                <div class="card rounded-lg p-6 md:p-8 mb-8">
+                    
+                    <h3 class="title-font text-2xl font-bold text-cyan-300 mb-4 text-center">Blueprint & Schematic Support</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
+                        <div>
+                            <h4 class="title-font text-xl font-bold text-white mb-2">Blueprint Creation</h4>
+                            <ul class="feature-list text-gray-300">
+                                <li>Allow users to select a group of machines and save them as a reusable "blueprint."</li>
+                                <li>Create a blueprint library where users can store and manage their custom blueprints.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <h4 class="title-font text-xl font-bold text-white mb-2">Schematic Export (Major Feature)</h4>
+                            <ul class="feature-list text-gray-300">
+                                <li>Export the factory plan as a `.nbt` schematic file, usable in-game with the Schematicannon.</li>
+                                <li>This will bridge the gap between planning and in-game execution.</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 text-center p-4 border-2 border-dashed border-dark-metal rounded-lg">
+                        <div class="p-4 rounded-lg flex-1">
+                            <div class="text-6xl mb-2">📋</div>
+                            <h3 class="text-xl font-bold text-cyan-300">1. Plan in Builder</h3>
+                        </div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-4 rounded-lg flex-1">
+                             <div class="text-6xl mb-2">💾</div>
+                            <h3 class="text-xl font-bold text-cyan-300">2. Export `.nbt` Schematic</h3>
+                        </div>
+                        <div class="flow-arrow">&rarr;</div>
+                        <div class="p-4 rounded-lg flex-1">
+                             <div class="text-6xl mb-2">⚙️</div>
+                            <h3 class="text-xl font-bold text-cyan-300">3. Build with Schematicannon</h3>
+                        </div>
+                    </div>
+                </div>
+                <div class="card rounded-lg p-6">
+                    
+                    <h3 class="title-font text-2xl font-bold text-cyan-300 mb-4">Multiplayer & Community Features</h3>
+                    <ul class="feature-list text-gray-300">
+                        <li><b>Real-time Collaboration (Experimental):</b> Implement basic real-time editing for shared projects using a backend service.</li>
+                        <li><b>Sharing and Community:</b> Create a "share" button for unique, read-only links and set up a simple online gallery for user designs.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <footer class="text-center pt-8">
+                <p class="text-lg text-cyan-300 title-font font-bold">The Ultimate Factory Planner: Version 2.0</p>
+                <p class="text-gray-400">Roadmap completion targeted for late 2026</p>
+            </footer>
+        </main>
+    </div>
+</body>
+</html>
+
