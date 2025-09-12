@@ -63,6 +63,8 @@
             background-color: rgba(46, 47, 52, 0.5);
         }
         .category-tag {
+            display: flex;
+            align-items: center;
             padding: 2px 10px;
             font-size: 0.8rem;
             font-weight: 700;
@@ -76,7 +78,7 @@
         }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen p-4 sm:p-6 lg:p-8">
+<body class="text-white min-h-screen p-4 sm:p-6 lg:p-8">
 
     <div class="max-w-6xl mx-auto">
         <header class="text-center mb-10">
@@ -151,7 +153,7 @@
 
         // This is your unique User ID from the Firebase Authentication console.
         // Only the user with this ID will see the "Reply" buttons.
-        const ADMIN_UID = "gzY4snJU2LMqE0MsMkThHjTVZhA2"; // IMPORTANT!
+        const ADMIN_UID = "REPLACE_THIS_WITH_THE_UID_YOU_COPIED"; // IMPORTANT!
 
         const appId = "factorybuilderfeedback";
         let app, db, auth;
@@ -239,6 +241,14 @@
             card.id = `comment-${commentId}`;
 
             const formattedDate = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString() : 'Just now';
+            
+            const iconMap = {
+                'Suggestion': '💡',
+                'Bug Report': '🐞',
+                'Praise': '👍',
+                'Other': '💬'
+            };
+            const categoryIcon = iconMap[data.category] || '💬';
 
             let adminControls = '';
             if (auth.currentUser && auth.currentUser.uid === ADMIN_UID) {
@@ -252,7 +262,9 @@
                         <p class="text-sm text-gray-400">${formattedDate}</p>
                     </div>
                     <div class="flex items-center gap-4">
-                        <div class="category-tag">${data.category}</div>
+                        <div class="category-tag">
+                           <span class="mr-2">${categoryIcon}</span><span>${data.category}</span>
+                        </div>
                         ${adminControls}
                     </div>
                 </div>
