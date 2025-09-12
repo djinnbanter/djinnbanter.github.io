@@ -29,7 +29,11 @@
             background-color: var(--panel-bg);
             border: 2px solid var(--dark-metal-border);
             box-shadow: inset 0 0 10px rgba(0,0,0,0.5);
-            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1), top 0.3s ease-out;
+            top: 1rem; /* Default top position */
+        }
+        #control-panel.panel-with-banner {
+             top: 4.5rem; /* Adjusted for banner height */
         }
         #control-panel.collapsed {
             transform: translateX(calc(-100% + 40px));
@@ -265,6 +269,15 @@
     </style>
 </head>
 <body class="bg-gray-900 text-white h-screen w-screen overflow-hidden">
+    
+    <!-- Notification Banner -->
+    <div id="notification-banner" class="fixed top-0 left-0 right-0 bg-cyan-800/90 backdrop-blur-sm text-white p-3 text-center z-30 flex items-center justify-center gap-4 shadow-lg">
+        <p class="text-sm md:text-base">
+            <strong>Welcome to the Factory Builder!</strong> Check out the <a href="https://djinnbanter.com/roadmap" target="_blank" rel="noopener noreferrer" class="font-bold underline hover:text-cyan-300">Roadmap</a> or leave some <a href="https://djinnbanter.com/feedback" target="_blank" rel="noopener noreferrer" class="font-bold underline hover:text-cyan-300">Feedback</a>!
+        </p>
+        <button id="close-banner-btn" class="text-2xl font-bold hover:text-cyan-200">&times;</button>
+    </div>
+
     <!-- Main Canvas Area -->
     <div id="canvas-container" class="w-full h-full absolute top-0 left-0 canvas-bg">
         <svg id="canvas" class="w-full h-full">
@@ -303,7 +316,7 @@
     </div>
 
     <!-- Side Control Panel -->
-    <div id="control-panel" class="fixed top-4 left-4 rounded-lg p-4 shadow-2xl w-64 flex flex-col z-20 max-h-[calc(100vh-2rem)]">
+    <div id="control-panel" class="fixed left-4 rounded-lg p-4 shadow-2xl w-64 flex flex-col z-20 max-h-[calc(100vh-2rem)]">
         <div class="flex-shrink-0 mb-4 text-center">
             <h1 class="text-xl font-bold text-cyan-400" style="text-shadow: 0 0 5px #0891b2;">Factory Builder</h1>
         </div>
@@ -519,6 +532,10 @@
             const addVaultBtn = document.getElementById('add-vault-btn');
             const toast = document.getElementById('toast');
             
+            // Notification Banner Elements
+            const notificationBanner = document.getElementById('notification-banner');
+            const closeBannerBtn = document.getElementById('close-banner-btn');
+
             // View Controls
             const undoBtn = document.getElementById('undo-btn');
             const redoBtn = document.getElementById('redo-btn');
@@ -641,6 +658,13 @@
                 closeGuideBtn.addEventListener('click', closeGuide);
                 guideModal.addEventListener('click', (e) => { if (e.target === guideModal) closeGuide(); });
                 helpBtn.addEventListener('click', () => guideModal.classList.remove('hidden'));
+
+                // Banner Logic
+                closeBannerBtn.addEventListener('click', () => {
+                    notificationBanner.style.display = 'none';
+                    controlPanel.classList.remove('panel-with-banner');
+                });
+                controlPanel.classList.add('panel-with-banner');
             };
             
             // --- HISTORY (UNDO/REDO) ---
