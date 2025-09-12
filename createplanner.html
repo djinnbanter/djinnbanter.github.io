@@ -271,25 +271,6 @@
             backdrop-filter: blur(4px);
             border-top: 1px solid var(--dark-metal-border);
         }
-        .accordion-header {
-            cursor: pointer;
-            transition: background-color 0.2s;
-        }
-        .accordion-header:hover {
-            background-color: rgba(255,255,255,0.1);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-        }
-        .accordion-item button {
-            background-color: #2E2F34;
-            border: 1px solid #1E1F22;
-        }
-        .accordion-item button:hover {
-             background-color: #3a3f4b;
-        }
 
     </style>
 </head>
@@ -354,13 +335,11 @@
                     <input type="text" id="ingredient-search" placeholder="Search item..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
                     <div id="autocomplete-list" class="hidden absolute bg-gray-700 border border-gray-500 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto no-scrollbar w-full mt-1"></div>
                 </div>
-                <button id="add-ingredient-btn" title="Add Ingredient from Search" class="w-full mt-2 btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #22c55e, #166534);">
+                <button id="add-ingredient-btn" title="Add Ingredient" class="w-full mt-2 btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #22c55e, #166534);">
                     <div class="rivet top-left"></div><div class="rivet top-right"></div>
-                    + Add from Search
+                    + Add Ingredient
                     <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
                 </button>
-                <!-- Item Browser Accordion -->
-                <div id="item-browser" class="mt-2 space-y-1"></div>
             </div>
 
             <!-- Machines Section -->
@@ -623,7 +602,6 @@
             
             // --- DATA ---
             let itemList = []; // Will be populated from the fetched JSON
-            let itemCategories = {}; // Will also be populated
             const machineTypes = {
                 'Mixing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15.14 13.82a2.5 2.5 0 0 0-3.32 0L6.5 19H4.83a2 2 0 0 1-1.42-3.41L12 7l8.59 8.59a2 2 0 0 1-1.42 3.41H17.5l-2.36-5.18Z"/><path d="M12 3v4"/><path d="m15 4-2 2-2-2"/><path d="M12 21a3 3 0 0 0 3-3H9a3 3 0 0 0 3 3Z"/></svg>',
                 'Crushing': '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10 16.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/><path d="M19 16.5a2.5 2.5 0 1 1-5 0 2.5 2.5 0 0 1 5 0Z"/><path d="M5 16.5V14l1.5-1.5"/><path d="M19 16.5V14l-1.5-1.5"/><path d="m14 12.5-1-1-1 1-1-1-1 1-1-1-1 1"/><path d="M12 11.5V9.5L10.5 8h-4L5 9.5V12"/></svg>',
@@ -665,9 +643,8 @@
                     if (!response.ok) {
                         throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                    itemCategories = await response.json();
+                    const itemCategories = await response.json();
                     itemList = Object.values(itemCategories).flat();
-                    populateItemBrowser();
                 } catch (error) {
                     console.error("Could not load item list:", error);
                     showToast("Error: Could not load item list. Please check the console.");
@@ -838,43 +815,6 @@
                 }
                 if (data.selection !== undefined) {
                     statusSelection.textContent = data.selection;
-                }
-            };
-            
-            const populateItemBrowser = () => {
-                itemBrowserContainer.innerHTML = '';
-                for (const category in itemCategories) {
-                    const categoryDiv = document.createElement('div');
-                    
-                    const header = document.createElement('div');
-                    header.className = 'accordion-header p-2 rounded-md font-semibold';
-                    header.textContent = category.replace(/_/g, ' ');
-                    
-                    const content = document.createElement('div');
-                    content.className = 'accordion-content pl-2 pt-1 pb-1 space-y-1';
-                    
-                    itemCategories[category].forEach(item => {
-                        const btn = document.createElement('button');
-                        btn.className = 'w-full text-left p-1 rounded-md text-sm';
-                        btn.textContent = item;
-                        btn.onclick = () => {
-                            addNode('ingredient', item);
-                            saveState();
-                        };
-                        content.appendChild(btn);
-                    });
-                    
-                    header.onclick = () => {
-                        const isOpen = content.style.maxHeight;
-                        document.querySelectorAll('.accordion-content').forEach(c => c.style.maxHeight = null);
-                        if (!isOpen) {
-                            content.style.maxHeight = content.scrollHeight + "px";
-                        }
-                    };
-                    
-                    categoryDiv.appendChild(header);
-                    categoryDiv.appendChild(content);
-                    itemBrowserContainer.appendChild(categoryDiv);
                 }
             };
 
@@ -1872,4 +1812,3 @@
     </script>
 </body>
 </html>
-
