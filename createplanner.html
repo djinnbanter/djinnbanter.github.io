@@ -1231,11 +1231,40 @@
             });
 
             ingredientSearch.addEventListener('input', () => {
-                if (!itemList.length) return; // Don't search if list isn't loaded
+                if (!itemList.length) return;
                 const text = ingredientSearch.value.trim().toLowerCase();
-                if (text === '') { autocompleteList.classList.add('hidden'); return; }
-                const filteredItems = itemList.filter(item => item.toLowerCase().includes(text)).slice(0, 5);
-                showSuggestions(filteredItems);
+                if (text === '') {
+                    autocompleteList.classList.add('hidden');
+                    return;
+                }
+                
+                let filteredItems = itemList.filter(item => item.toLowerCase().includes(text));
+
+                // Smart sort the results
+                filteredItems.sort((a, b) => {
+                    const aLower = a.toLowerCase();
+                    const bLower = b.toLowerCase();
+
+                    // Priority 1: Exact match
+                    if (aLower === text) return -1;
+                    if (bLower === text) return 1;
+
+                    // Priority 2: Starts with the search term
+                    const aStartsWith = aLower.startsWith(text);
+                    const bStartsWith = bLower.startsWith(text);
+                    if (aStartsWith && !bStartsWith) return -1;
+                    if (!aStartsWith && bStartsWith) return 1;
+
+                    // Priority 3: Shorter length first
+                    if (a.length !== b.length) {
+                        return a.length - b.length;
+                    }
+
+                    // Priority 4: Alphabetical
+                    return aLower.localeCompare(bLower);
+                });
+
+                showSuggestions(filteredItems.slice(0, 5));
             });
             ingredientSearch.addEventListener('focus', () => ingredientSearch.dispatchEvent(new Event('input')));
             ingredientSearch.addEventListener('blur', () => setTimeout(() => autocompleteList.classList.add('hidden'), 150));
@@ -1778,3 +1807,4 @@
     </script>
 </body>
 </html>
+
