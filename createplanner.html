@@ -354,6 +354,11 @@
                     <input type="text" id="ingredient-search" placeholder="Search item..." class="w-full bg-gray-900 border border-gray-700 rounded-md px-3 py-2 text-white focus:ring-2 focus:ring-cyan-500 focus:outline-none">
                     <div id="autocomplete-list" class="hidden absolute bg-gray-700 border border-gray-500 rounded-md shadow-lg z-50 max-h-60 overflow-y-auto no-scrollbar w-full mt-1"></div>
                 </div>
+                <button id="add-ingredient-btn" title="Add Ingredient from Search" class="w-full mt-2 btn-plate font-bold py-2 px-4 transition-colors text-center plate" style="background-image: linear-gradient(to bottom, #22c55e, #166534);">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    + Add from Search
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </button>
                 <!-- Item Browser Accordion -->
                 <div id="item-browser" class="mt-2 space-y-1"></div>
             </div>
@@ -558,6 +563,7 @@
             const helpBtn = document.getElementById('help-btn');
             const ingredientSearch = document.getElementById('ingredient-search');
             const autocompleteList = document.getElementById('autocomplete-list');
+            const addIngredientBtn = document.getElementById('add-ingredient-btn');
             const itemBrowserContainer = document.getElementById('item-browser');
             const machineButtonsContainer = document.getElementById('machine-buttons');
             const addVaultBtn = document.getElementById('add-vault-btn');
@@ -1295,6 +1301,15 @@
             });
             confirmCancelBtn.addEventListener('click', hideConfirm);
             
+            addIngredientBtn.addEventListener('click', () => {
+                const value = ingredientSearch.value;
+                if (value) {
+                    addNode('ingredient', value);
+                    ingredientSearch.value = '';
+                    saveState();
+                }
+            });
+
             ingredientSearch.addEventListener('input', () => {
                 if (!itemList.length) return;
                 const text = ingredientSearch.value.trim().toLowerCase();
