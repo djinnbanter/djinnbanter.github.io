@@ -279,7 +279,7 @@
     <!-- Notification Banner -->
     <div id="notification-banner" class="fixed top-0 left-0 right-0 bg-cyan-800/90 backdrop-blur-sm text-white p-3 text-center z-30 flex items-center justify-center gap-4 shadow-lg">
         <p class="text-sm md:text-base">
-            <strong>Update!</strong> The item list is now updated, with a improved sidebar UI.
+            <strong>Update!</strong> The item list is updated, with a improved sidebar UI.
         </p>
         <button id="close-banner-btn" class="text-2xl font-bold hover:text-cyan-200">&times;</button>
     </div>
@@ -481,10 +481,7 @@
 
     <!-- Status Bar -->
     <div id="status-bar" class="fixed bottom-0 left-0 right-0 h-6 px-4 z-20 flex items-center justify-between text-xs text-gray-400">
-        <div class="flex items-center gap-4">
-            <span id="app-version">V1.0.4</span> <!-- Add this line -->
-            <span id="status-selection">Ready</span>
-        </div>
+        <span id="status-selection">Ready</span>
         <div class="flex items-center gap-4">
             <span id="status-coords">X: 0, Y: 0</span>
             <span id="status-zoom">100%</span>
@@ -685,6 +682,7 @@
                 updateTransform();
                 updateEditButtonsState();
                 updateStatusBar();
+                generateProjectButtons();
             };
             
             // --- HISTORY (UNDO/REDO) ---
@@ -824,19 +822,16 @@
             const generateProjectButtons = () => {
                 const container = document.getElementById('project-buttons');
                 const buttons = [
-                    { id: 'export-btn', text: 'Export', title: 'Export project as JSON file', style: 'linear-gradient(to bottom, #14b8a6, #0f766e)', onClick: () => exportBtn.click() },
-                    { id: 'import-btn', text: 'Import', title: 'Import project from JSON file', style: 'linear-gradient(to bottom, #38bdf8, #0ea5e9)', onClick: () => importBtn.click() },
+                    { id: 'export-btn', text: 'Export', title: 'Export project as JSON file', style: 'linear-gradient(to bottom, #14b8a6, #0f766e)', onClick: setupExport },
+                    { id: 'import-btn', text: 'Import', title: 'Import project from JSON file', style: 'linear-gradient(to bottom, #38bdf8, #0ea5e9)', onClick: setupImport },
                     { id: 'clear-btn', text: 'Clear', title: 'Clear canvas', style: 'linear-gradient(to bottom, #ef4444, #b91c1c)', onClick: () => showConfirm('Clear Canvas', 'Are you sure you want to clear the entire canvas?', () => { g.innerHTML = ''; AppState.nodeCounter = 0; AppState.selectedItem = null; saveState(); showToast('Canvas Cleared!'); })},
                     { id: 'help-btn', text: 'Help', title: 'Show Help', style: 'linear-gradient(to bottom, #a855f7, #7e22ce)', onClick: () => guideModal.classList.remove('hidden') },
                     { id: 'roadmap-link', text: 'Roadmap', title: 'View the project roadmap', style: 'linear-gradient(to bottom, #f97316, #c2410c)', href: 'https://djinnbanter.com/roadmap' },
                     { id: 'feedback-link', text: 'Feedback', title: 'Leave feedback or report a bug', style: 'linear-gradient(to bottom, #ec4899, #be185d)', href: 'https://djinnbanter.com/feedback' },
                 ];
                 
+                container.innerHTML = ''; // Clear existing buttons
                 buttons.forEach(config => container.appendChild(createPlateButton(config)));
-
-                // Re-assign button variables after creation
-                const exportBtn = document.getElementById('export-btn');
-                const importBtn = document.getElementById('import-btn');
             };
 
 
@@ -1665,9 +1660,6 @@
                 }
             });
             
-            const originalExportBtn = document.getElementById('export-btn');
-            const originalImportBtn = document.getElementById('import-btn');
-
             const setupExport = () => {
                 const projectData = getCurrentState();
                 const dataStr = JSON.stringify(projectData, null, 2);
