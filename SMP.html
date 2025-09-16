@@ -87,19 +87,6 @@
         .accordion-header.open .arrow {
             transform: rotate(90deg);
         }
-        .hero-banner {
-            height: 80vh;
-            background-size: cover;
-            background-position: center;
-            transition: background-image 1s ease-in-out;
-        }
-        .hero-content {
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-        .hero-content.fading {
-            opacity: 0;
-            transform: translateY(10px);
-        }
         .gallery-image {
             aspect-ratio: 16 / 9;
             object-fit: cover;
@@ -109,6 +96,35 @@
         .gallery-image:hover {
             transform: scale(1.03);
             box-shadow: 0 0 20px var(--accent-cyan);
+        }
+        /* --- Hero Banner Transition --- */
+        .hero-banner {
+            height: 80vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            z-index: 1;
+        }
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            background-image: var(--next-bg-image);
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+            z-index: -1;
+        }
+        .hero-banner.is-fading::before {
+            opacity: 1;
+        }
+        .hero-content {
+            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
+        }
+        .hero-content.fading {
+            opacity: 0;
+            transform: translateY(10px);
         }
     </style>
 </head>
@@ -158,7 +174,7 @@
                  </ul>
             </div>
              <div>
-                <img src="https://placehold.co/600x400/1a1a1a/58A6FF?text=Your+Best+Build" alt="An impressive build on the server" class="rounded-lg shadow-2xl w-full border-2 border-dark-metal-border">
+                <img src="images/2025-01-28_17.16.39 (Large).png" alt="An impressive build on the server" class="rounded-lg shadow-2xl w-full border-2 border-dark-metal-border">
             </div>
         </section>
 
@@ -254,22 +270,43 @@
                 heroContentEl.classList.add('fading');
 
                 setTimeout(() => {
-                    const slide = heroSlides[currentSlide];
-                    heroBannerEl.style.backgroundImage = slide.backgroundImage;
-                    heroContentEl.innerHTML = `
-                        <h1 class="text-5xl md:text-7xl font-black text-cyan-400 mb-4" style="text-shadow: 0 0 8px var(--accent-cyan);">${slide.title}</h1>
-                        <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400 mb-8">${slide.description}</p>
-                        <a href="#" class="btn-plate font-bold py-3 px-6 rounded-lg text-lg" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
-                             ${slide.buttonText}
-                        </a>
-                    `;
-                    heroContentEl.classList.remove('fading');
+                    const nextSlideIndex = (currentSlide + 1) % heroSlides.length;
+                    const nextSlide = heroSlides[nextSlideIndex];
                     
-                    currentSlide = (currentSlide + 1) % heroSlides.length;
-                }, 500); // Wait for fade-out animation
-            }
+                    heroBannerEl.style.setProperty('--next-bg-image', nextSlide.backgroundImage);
+                    heroBannerEl.classList.add('is-fading');
+                    
+                    setTimeout(() => {
+                        currentSlide = nextSlideIndex;
+                        const currentSlideData = heroSlides[currentSlide];
+                        heroBannerEl.style.backgroundImage = currentSlideData.backgroundImage;
+                        heroBannerEl.classList.remove('is-fading');
+                        
+                        heroContentEl.innerHTML = `
+                            <h1 class="text-5xl md:text-7xl font-black text-cyan-400 mb-4" style="text-shadow: 0 0 8px var(--accent-cyan);">${currentSlideData.title}</h1>
+                            <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400 mb-8">${currentSlideData.description}</p>
+                            <a href="#" class="btn-plate font-bold py-3 px-6 rounded-lg text-lg" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
+                                 ${currentSlideData.buttonText}
+                            </a>
+                        `;
+                        heroContentEl.classList.remove('fading');
 
-            updateHero();
+                    }, 1000); // Must match CSS transition duration
+
+                }, 500); // Wait for text fade-out animation
+            }
+            
+            // Initial load
+            const firstSlide = heroSlides[0];
+            heroBannerEl.style.backgroundImage = firstSlide.backgroundImage;
+            heroContentEl.innerHTML = `
+                <h1 class="text-5xl md:text-7xl font-black text-cyan-400 mb-4" style="text-shadow: 0 0 8px var(--accent-cyan);">${firstSlide.title}</h1>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400 mb-8">${firstSlide.description}</p>
+                <a href="#" class="btn-plate font-bold py-3 px-6 rounded-lg text-lg" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
+                     ${firstSlide.buttonText}
+                </a>
+            `;
+
             setInterval(updateHero, 7000); // Rotate every 7 seconds
 
             // --- Mod List Accordion ---
