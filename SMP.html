@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create & Beyond - A Modern Minecraft Experience</title>
+    <title>Create & Beyond - Coming Soon!</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;700;900&display=swap" rel="stylesheet">
     <style>
         :root {
             --brass-dark: #71512E;
@@ -18,16 +18,16 @@
             --panel-bg: #3a3f4b;
             --accent-cyan: #0891b2;
             --rivet-color: #2c303a;
-            --canvas-bg-color: #1a1a1a;
         }
         body {
             font-family: 'Roboto Slab', serif;
-            background-color: var(--canvas-bg-color);
-            background-image:
-                linear-gradient(rgba(255,255,255,0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px);
-            background-size: 20px 20px;
             color: #C9D1D9;
+            overflow: hidden;
+        }
+        .hero-background {
+            background-image: url('images/2025-03-30_22.00.04 (Large).png'); /* One of your cool images */
+            background-size: cover;
+            background-position: center;
         }
         .card {
             background-color: var(--panel-bg);
@@ -65,312 +65,82 @@
         .btn-plate:hover {
             filter: brightness(1.2);
         }
-        .accordion-header {
-            cursor: pointer;
-            transition: background-color 0.2s;
+        .timer-box {
             background-color: var(--dark-metal);
             border: 1px solid var(--dark-metal-border);
-            position: relative;
-        }
-        .accordion-header:hover {
-            background-color: var(--accent-cyan);
-        }
-        .accordion-content {
-            max-height: 0;
-            overflow: hidden;
-            transition: max-height 0.3s ease-out;
-            background-color: rgba(0,0,0,0.2);
-        }
-        .accordion-header .arrow {
-            transition: transform 0.3s ease-out;
-        }
-        .accordion-header.open .arrow {
-            transform: rotate(90deg);
-        }
-        .gallery-image {
-            aspect-ratio: 16 / 9;
-            object-fit: cover;
-            border: 2px solid var(--dark-metal-border);
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        .gallery-image:hover {
-            transform: scale(1.03);
-            box-shadow: 0 0 20px var(--accent-cyan);
-        }
-        /* --- Hero Banner Transition --- */
-        .hero-banner {
-            height: 80vh;
-            background-size: cover;
-            background-position: center;
-            position: relative;
-            z-index: 1;
-        }
-        .hero-banner::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background-size: cover;
-            background-position: center;
-            background-image: var(--next-bg-image);
-            opacity: 0;
-            transition: opacity 1s ease-in-out;
-            z-index: -1;
-        }
-        .hero-banner.is-fading::before {
-            opacity: 1;
-        }
-        .hero-content {
-            transition: opacity 0.5s ease-in-out, transform 0.5s ease-in-out;
-        }
-        .hero-content.fading {
-            opacity: 0;
-            transform: translateY(10px);
         }
     </style>
 </head>
 <body class="antialiased">
 
-    <!-- Hero Banner Section -->
-    <section id="hero-banner" class="hero-banner relative w-full flex items-center justify-center text-white">
-        <div class="absolute inset-0 bg-black/60"></div>
-        <div class="relative z-10 text-center p-4">
-            <div id="hero-content" class="hero-content">
-                <!-- Content is injected by JS -->
+    <div class="hero-background w-full h-screen">
+        <div class="w-full h-full bg-black/70 flex items-center justify-center p-4">
+            <div class="card rounded-lg p-8 sm:p-12 text-center max-w-4xl mx-auto">
+                <h1 class="text-5xl md:text-7xl font-black text-cyan-400" style="text-shadow: 0 0 10px var(--accent-cyan);">Create & Beyond</h1>
+                <h2 class="text-3xl md:text-4xl font-bold text-white mt-4 mb-6">Coming Soon</h2>
+                
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+                    A new survival-focused Minecraft server, built from the ground up by a passionate community. Prepare for a world of intricate factories, collaborative building, and grand adventures.
+                </p>
+
+                <!-- Countdown Timer -->
+                <div id="countdown-timer" class="flex justify-center gap-4 my-10">
+                    <div>
+                        <div id="days" class="timer-box rounded-md text-5xl font-bold p-4">00</div>
+                        <div class="text-sm text-gray-400 mt-2">Days</div>
+                    </div>
+                     <div>
+                        <div id="hours" class="timer-box rounded-md text-5xl font-bold p-4">00</div>
+                        <div class="text-sm text-gray-400 mt-2">Hours</div>
+                    </div>
+                     <div>
+                        <div id="minutes" class="timer-box rounded-md text-5xl font-bold p-4">00</div>
+                        <div class="text-sm text-gray-400 mt-2">Minutes</div>
+                    </div>
+                     <div>
+                        <div id="seconds" class="timer-box rounded-md text-5xl font-bold p-4">00</div>
+                        <div class="text-sm text-gray-400 mt-2">Seconds</div>
+                    </div>
+                </div>
+
+                <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
+                    Want to be the first to know when we launch? Join our Discord for updates, sneak peeks, and to apply for our pre-launch building team!
+                </p>
+
+                <a href="#" class="btn-plate text-xl font-bold py-3 px-8 rounded-md" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
+                    <div class="rivet top-left"></div><div class="rivet top-right"></div>
+                    Join our Discord for Updates!
+                    <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
+                </a>
             </div>
         </div>
-    </section>
-
-    <div class="max-w-7xl mx-auto p-4 sm:p-6 lg:p-8 space-y-24">
-        
-        <!-- About Section -->
-        <section class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div>
-                 <h2 class="text-4xl font-black mb-4 text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">A World Built, Not Generated.</h2>
-                 <p class="text-lg text-gray-400 leading-relaxed mb-6">
-                     This isn't just another modded server; it's a passion project in collaborative world-building. We're a team of friends playing in pure survival, dedicated to crafting a rich, living world before opening the gates to the community.
-                 </p>
-                 <ul class="space-y-4">
-                     <li class="flex items-start">
-                         <span class="text-cyan-400 text-2xl mr-4">✔</span>
-                         <div>
-                             <h3 class="font-bold text-lg">Pure Survival</h3>
-                             <p class="text-gray-400">Every block is placed, every resource gathered. The challenge is the reward.</p>
-                         </div>
-                     </li>
-                      <li class="flex items-start">
-                         <span class="text-cyan-400 text-2xl mr-4">✔</span>
-                         <div>
-                             <h3 class="font-bold text-lg">Automation & Aesthetics</h3>
-                             <p class="text-gray-400">We build factories that are as beautiful as they are efficient, embracing the core of Create.</p>
-                         </div>
-                     </li>
-                      <li class="flex items-start">
-                         <span class="text-cyan-400 text-2xl mr-4">✔</span>
-                         <div>
-                             <h3 class="font-bold text-lg">Community First</h3>
-                             <p class="text-gray-400">Our goal is to build a vibrant, mature community of like-minded builders and engineers.</p>
-                         </div>
-                     </li>
-                 </ul>
-            </div>
-             <div>
-                <img src="images/2025-01-28_17.16.39 (Large).png" alt="An impressive build on the server" class="rounded-lg shadow-2xl w-full border-2 border-dark-metal-border">
-            </div>
-        </section>
-
-        <!-- Rules Section -->
-        <section>
-             <h2 class="text-4xl font-black text-center mb-10 text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">Server Rules & Etiquette</h2>
-             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">1. Respect All Players</h3>
-                    <p class="text-gray-400">Be kind and courteous. No hate speech, harassment, or excessive toxicity. We're here to build, not to break spirits.</p>
-                </div>
-                <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">2. No Griefing or Stealing</h3>
-                    <p class="text-gray-400">Do not destroy, deface, or steal from other players' builds or chests. This is a collaborative environment.</p>
-                </div>
-                 <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">3. No Cheating or Exploiting</h3>
-                    <p class="text-gray-400">The use of hacks, x-ray, or abusing game/mod bugs is strictly forbidden and will result in a permanent ban.</p>
-                </div>
-                 <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">4. Build with Consideration</h3>
-                    <p class="text-gray-400">Be mindful of server performance. Avoid massive, unoptimized contraptions that cause lag. Clean up temporary structures.</p>
-                </div>
-                <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">5. PvP is Consensual</h3>
-                    <p class="text-gray-400">Do not engage in player-versus-player combat unless all parties agree to it. This is a primarily PvE server.</p>
-                </div>
-                <div class="card p-6 rounded-lg">
-                    <h3 class="font-bold text-xl mb-2 text-brass">6. Use Land Claiming</h3>
-                    <p class="text-gray-400">Protect your property and respect the claims of others. Unclaimed areas are considered wild and may be subject to community projects.</p>
-                </div>
-             </div>
-        </section>
-
-        <!-- Mod List Section -->
-        <section>
-            <h2 class="text-4xl font-black text-center mb-10 text-cyan-400" style="text-shadow: 0 0 8px var(--accent-cyan);">Our Curated Modpack</h2>
-            <div id="modlist-accordion" class="max-w-4xl mx-auto space-y-2">
-                <!-- Mod list will be generated by JS here -->
-            </div>
-        </section>
-        
-        <!-- Join Section -->
-        <section class="text-center card rounded-xl p-12">
-             <h2 class="text-4xl font-black mb-4">Ready to Join the Project?</h2>
-             <p class="text-lg text-gray-400 max-w-2xl mx-auto mb-8">
-                 We're currently in the world-building phase and looking for mature, creative players to help us build a world worth exploring. If our philosophy resonates with you, we invite you to apply.
-             </p>
-             <a href="#" class="btn-plate text-xl font-bold py-3 px-8 rounded-md" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
-                 <div class="rivet top-left"></div><div class="rivet top-right"></div>
-                    Join our Discord to Apply!
-                 <div class="rivet bottom-left"></div><div class="rivet bottom-right"></div>
-            </a>
-        </section>
-
     </div>
     
-    <footer class="text-center text-gray-500 mt-24 pb-8">
-        <p>A passion project by builders, for builders.</p>
-        <p class="text-sm mt-1">Hosted in Europe | 16GB Dedicated RAM</p>
-    </footer>
-
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // --- Rotating Hero Banner ---
-            const heroContentEl = document.getElementById('hero-content');
-            const heroBannerEl = document.getElementById('hero-banner');
+            // --- SET YOUR LAUNCH DATE HERE ---
+            const launchDate = new Date("Jan 1, 2026 18:00:00").getTime();
 
-            const heroSlides = [
-                {
-                    title: "Build the World of Tomorrow",
-                    description: "Join a community dedicated to pushing the limits of the Create mod in a pure survival environment. Your factory starts here.",
-                    buttonText: "See Our Vision",
-                    backgroundImage: "url('images/2025-01-28_17.16.39 (Large).png')"
-                },
-                {
-                    title: "Explore a Living World",
-                    description: "Our world is enhanced with beautiful new structures, biomes, and dungeons to discover. Adventure awaits beyond your factory walls.",
-                    buttonText: "Discover the Mods",
-                    backgroundImage: "url('images/2025-03-30_22.00.04 (Large).png')"
-                },
-                 {
-                    title: "Join a Passionate Community",
-                    description: "We're more than just a server; we're a team of builders, engineers, and friends. Find your place in our growing world.",
-                    buttonText: "Join Our Discord",
-                    backgroundImage: "url('images/2025-04-27_11.36.56 (Large).png')"
+            const timer = setInterval(function() {
+                const now = new Date().getTime();
+                const distance = launchDate - now;
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById("days").innerHTML = String(days).padStart(2, '0');
+                document.getElementById("hours").innerHTML = String(hours).padStart(2, '0');
+                document.getElementById("minutes").innerHTML = String(minutes).padStart(2, '0');
+                document.getElementById("seconds").innerHTML = String(seconds).padStart(2, '0');
+
+                if (distance < 0) {
+                    clearInterval(timer);
+                    document.getElementById("countdown-timer").innerHTML = `<div class="text-4xl font-bold text-green-400">The Server is Live!</div>`;
                 }
-            ];
-            
-            let currentSlide = 0;
-
-            function updateHero() {
-                heroContentEl.classList.add('fading');
-
-                setTimeout(() => {
-                    const nextSlideIndex = (currentSlide + 1) % heroSlides.length;
-                    const nextSlide = heroSlides[nextSlideIndex];
-                    
-                    heroBannerEl.style.setProperty('--next-bg-image', nextSlide.backgroundImage);
-                    heroBannerEl.classList.add('is-fading');
-                    
-                    setTimeout(() => {
-                        currentSlide = nextSlideIndex;
-                        const currentSlideData = heroSlides[currentSlide];
-                        heroBannerEl.style.backgroundImage = currentSlideData.backgroundImage;
-                        heroBannerEl.classList.remove('is-fading');
-                        
-                        heroContentEl.innerHTML = `
-                            <h1 class="text-5xl md:text-7xl font-black text-cyan-400 mb-4" style="text-shadow: 0 0 8px var(--accent-cyan);">${currentSlideData.title}</h1>
-                            <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400 mb-8">${currentSlideData.description}</p>
-                            <a href="#" class="btn-plate font-bold py-3 px-6 rounded-lg text-lg" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
-                                 ${currentSlideData.buttonText}
-                            </a>
-                        `;
-                        heroContentEl.classList.remove('fading');
-
-                    }, 1000); // Must match CSS transition duration
-
-                }, 500); // Wait for text fade-out animation
-            }
-            
-            // Initial load
-            const firstSlide = heroSlides[0];
-            heroBannerEl.style.backgroundImage = firstSlide.backgroundImage;
-            heroContentEl.innerHTML = `
-                <h1 class="text-5xl md:text-7xl font-black text-cyan-400 mb-4" style="text-shadow: 0 0 8px var(--accent-cyan);">${firstSlide.title}</h1>
-                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-400 mb-8">${firstSlide.description}</p>
-                <a href="#" class="btn-plate font-bold py-3 px-6 rounded-lg text-lg" style="background-image: linear-gradient(to bottom, var(--brass-light), var(--brass));">
-                     ${firstSlide.buttonText}
-                </a>
-            `;
-
-            setInterval(updateHero, 7000); // Rotate every 7 seconds
-
-            // --- Mod List Accordion ---
-            const modData = {
-                "Core & Performance": ["Create", "NeoForge", "Flywheel", "Sodium", "Lithium", "Iris", "ModernFix", "Ferrite Core", "Fastquit", "Dynamic FPS", "EntityCulling", "More Culling", "CullLeaves", "BadOptimizations", "ImmediatelyFast", "Noisium", "AsyncParticles", "Concurrent Chunk Management Engine (C2ME)", "Alternate Current"],
-                "Create Addons": ["Create Crafts & Additions", "Create Confectionery", "Create Diesel Generators", "Create Enchantment Industry", "Create Encased", "Create Goggles", "Create Liquid Fuel", "Create Ore Excavation", "Create Railways Navigator", "Create Slice & Dice", "Create Train Utilities", "Create: Bells & Whistles", "Create: Central Kitchen", "Create: Connected", "Create: Copper and Zinc", "Create: Copycats+", "Create: Deep Dark", "Create: Enchantment Industry", "Create: Framed", "Create: Garnished", "Create: Mechanical Spawner", "Create: Numismatics", "Create: Power Loader", "And many more Create addons for expanded gameplay..."],
-                "Farming & Food": ["Farmer's Delight", "Croptopia", "And many Delight addons (Chef's, Compat, Corn, Cuisine, End's, Miner's, etc.)"],
-                "World Generation & Structures": ["YUNG's API & Better Dungeons/Mineshafts/Strongholds/etc.", "Repurposed Structures", "Towns and Towers", "Additional Structures", "ChoiceTheorem's Overhauled Village", "Dungeons and Taverns", "Structory", "Nullscape", "Incendium", "Molten Vents"],
-                "Aesthetics & QoL": ["Chipped", "Rechiseled", "Handcrafted", "Macaw's Fences and Walls", "Immersive Paintings", "Immersive Armors", "Sophisticated Backpacks", "Storage Drawers", "Tom's Simple Storage", "Nature's Compass", "Jade", "Just Enough Items (JEI)", "Mouse Tweaks", "Chat Heads", "3d Skin Layers", "CameraOverhaul"],
-                "Mobs & Creatures": ["Creeper Overhaul", "Enderman Overhaul"],
-                "ComputerCraft & Automation": ["CC: Tweaked", "CC:C Bridge", "CC: BallistiX"],
-                "Libraries & APIs": ["Architectury", "Bookshelf", "Cloth Config", "GeckoLib", "Moonlight Lib", "Kotlin For Forge", "Resourceful Lib", "SuperMartijn642's Core Lib", "Sinytra Connector & Forgified Fabric API (For compatibility)"]
-            };
-
-            const accordionContainer = document.getElementById('modlist-accordion');
-
-            for (const category in modData) {
-                const items = modData[category];
-                const categoryDiv = document.createElement('div');
-                categoryDiv.className = 'accordion-item rounded-lg overflow-hidden';
-
-                const header = document.createElement('div');
-                header.className = 'accordion-header p-4 flex justify-between items-center';
-                header.innerHTML = `
-                    <h3 class="text-xl font-bold">${category}</h3>
-                    <span class="arrow text-2xl font-bold">▸</span>
-                `;
-
-                const content = document.createElement('div');
-                content.className = 'accordion-content';
-                const contentInner = document.createElement('div');
-                contentInner.className = 'py-4 px-6';
-                
-                const list = document.createElement('ul');
-                list.className = 'list-disc pl-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-6 gap-y-1 text-gray-400';
-                items.forEach(item => {
-                    const li = document.createElement('li');
-                    li.textContent = item;
-                    list.appendChild(li);
-                });
-                
-                contentInner.appendChild(list);
-                content.appendChild(contentInner);
-
-                header.addEventListener('click', () => {
-                    const isOpen = header.classList.contains('open');
-                    document.querySelectorAll('.accordion-header').forEach(h => {
-                        h.classList.remove('open');
-                        h.nextElementSibling.style.maxHeight = null;
-                        h.nextElementSibling.style.padding = "0 1.5rem";
-                    });
-                    if (!isOpen) {
-                        header.classList.add('open');
-                        content.style.padding = "1rem 1.5rem";
-                        content.style.maxHeight = content.scrollHeight + "px";
-                    }
-                });
-
-                categoryDiv.appendChild(header);
-                categoryDiv.appendChild(content);
-                accordionContainer.appendChild(categoryDiv);
-            }
+            }, 1000);
         });
     </script>
 </body>
 </html>
-
